@@ -1,0 +1,23 @@
+Package: BHAIBYE
+Type: Package
+Title: HAI Burden Analysis & Shiny App
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Ting-Ting", "Wu",
+      email = "twuu0083@student.monash.edu",
+      role = c("aut", "cre")
+    )
+  )
+Description: More about what it does (maybe more than one line).
+    Continuation lines should be indented.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: 
+    R (>= 3.5)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 7.3.3
