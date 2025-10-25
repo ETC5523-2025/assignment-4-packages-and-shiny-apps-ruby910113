@@ -3,6 +3,7 @@ url: https://ETC5523-2025.github.io/assignment-4-packages-and-shiny-apps-ruby910
 
 template:
   bootstrap: 5
+  bootswatch: litera
   bslib:
     primary: "#283618"
     bg: "#fafaf7"
@@ -20,7 +21,7 @@ home:
 navbar:
   structure:
     left:  [reference, examples]
-    right: [github]
+    right: [github, search]
   components:
     reference:
       text: "Reference"

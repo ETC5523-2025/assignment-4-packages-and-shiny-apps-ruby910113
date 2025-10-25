@@ -4,7 +4,7 @@ library(dplyr)
 library(tibble)
 
 # Annual totals for Germany (German PPS) with 95% UI
-bhai_summary <- tibble::tribble(
+bhai_summary <- tribble(
   ~geo,      ~sample,       ~hai,
   ~cases, ~cases_low, ~cases_high,
   ~deaths, ~deaths_low, ~deaths_high,
@@ -49,7 +49,7 @@ bhai_summary <- tibble::tribble(
 )
 
 # Rates per 100,000 population (with 95% UI by HAI type)
-bhai_rates <- tibble::tribble(
+bhai_rates <- tribble(
   ~geo,      ~sample,                ~hai, ~metric,  ~per100k, ~per100k_low, ~per100k_high,
   
   # -------- Germany — German PPS --------
@@ -99,4 +99,4 @@ bhai_rates <- tibble::tribble(
 
 # Save
 usethis::use_data(bhai_summary, overwrite = TRUE)
-usethis::use_data(bhai_rates,   overwrite = TRUE)
+usethis::use_data(bhai_rates, overwrite = TRUE)
