@@ -183,8 +183,12 @@ assignment-4-packages-and-shiny-apps-ruby910113/
 
 ## Acknowledgements
 
-This package was developed as part of an academic assessment.
-The data, methods, and interpretation logic draw on the BHAI workflow described by Zacher et al. (2019) in [Eurosurveillance](https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext).
+This package was produced in the context of an academic assignment.
 
-Please see the package LICENSE file for terms of use and redistribution. Any errors or omissions in this teaching package are the author’s own.
+Package scaffolding and documentation were made much easier thanks to the R packaging ecosystem — particularly **usethis**, **devtools**, and **roxygen2**.  
+Interactive exploration is built with **shiny**, **plotly**, and **ggplot2**; data wrangling and utilities rely on **dplyr**, **tidyr**, and **scales**; theming uses **bslib**.
 
+Concepts, data structure, and interpretation follow the BHAI approach described by Zacher et al. (2019) in *Eurosurveillance*:  
+<https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext>
+
+Please refer to the package **LICENSE** file for terms of use and redistribution. Any mistakes or oversights are my own.
