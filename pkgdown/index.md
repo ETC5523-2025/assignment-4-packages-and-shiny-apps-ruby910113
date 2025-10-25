@@ -50,7 +50,3 @@ Issues and pull requests are welcome.
 ## Inspiration of the package name
 
 **BHAIBYE** is a playful mash-up of **BHAI** (Burden of Healthcare-Associated Infections) and the phrase **“bye-bye”**, cheekily inspired by *“Bye Bye Bye”* from **’N Sync**. The idea is to “say bye” to confusion and make HAI burden numbers easier to explore and explain.
-
-<p align="center">
-  <img src="man/figures/deadpool-logan.gif" alt="Deadpool & Wolverine" width="340">
-</p>
