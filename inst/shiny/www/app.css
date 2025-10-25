@@ -1,0 +1,22 @@
+.navbar {
+  padding-top: 4rem !important;
+  padding-bottom: 2.2rem !important;
+}
+
+.navbar-brand {
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif !important;
+  font-weight: 600 !important;
+  font-size: 1.6rem !important;
+  color: #fafaf7 !important;
+}
+
+body {
+  background-color: #fafaf7 !important;
+}
+
+h1, h2, h3, h4, h5 {
+  color: #283618 !important;
+  font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  font-weight: 600;
+}
+

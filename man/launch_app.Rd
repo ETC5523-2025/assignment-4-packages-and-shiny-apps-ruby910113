@@ -2,10 +2,10 @@
 % Please edit documentation in R/launch_app.R
 \name{launch_app}
 \alias{launch_app}
-\title{Launch the Shiny app}
+\title{Launch my shiny app}
 \usage{
-launch_app(...)
+launch_app()
 }
 \description{
-Launch the Shiny app
+Launch my shiny app
 }

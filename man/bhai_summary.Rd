@@ -3,21 +3,29 @@
 \docType{data}
 \name{bhai_summary}
 \alias{bhai_summary}
-\title{BHAI-based burden summaries for HAIs}
+\title{BHAI summary by infection type (annual totals)}
 \format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 5 rows and 8 columns.
+A data frame with 8 variables:
+\describe{
+  \item{geo}{character. Geography (e.g., "Germany", "EU/EEA").}
+  \item{sample}{character. Sample/data source (e.g., "German PPS",
+  "German convenience", "ECDC PPS").}
+  \item{hai}{character. Infection type (HAP, UTI, BSI, SSI, CDI).}
+  \item{cases}{numeric. Estimated number of incident infections (annual).}
+  \item{deaths}{numeric. Estimated attributable deaths (annual).}
+  \item{dalys}{numeric. Disability-adjusted life years (YLL + YLD).}
+  \item{yll}{numeric. Years of life lost.}
+  \item{yld}{numeric. Years lived with disability.}
+}
+}
+\source{
+Zacher et al. (2019) BHAI methodology
 }
 \usage{
-bhai_summary
+data(bhai_summary)
 }
 \description{
-`bhai_summary`: Annual totals for each HAI type and sample.
-Columns: `geo` ("Germany", "EU/EEA"), `sample` ("German PPS",
-"German convenience", "ECDC PPS"), `hai` ("HAP","UTI","BSI","SSI","CDI"),
-and numeric measures `cases`, `deaths`, `dalys`, `yll`, `yld`.
-
-`bhai_rates`: Aggregate rates per 100,000 population.
-Columns: `geo`, `sample`, `hai` (usually "All"), `metric` ("HAIs","Deaths","DALYs"),
-`per100k`.
+A dataset of estimated healthcare-associated infections (HAIs) by infection
+type, used for demonstration and the Shiny app.
 }
 \keyword{datasets}
