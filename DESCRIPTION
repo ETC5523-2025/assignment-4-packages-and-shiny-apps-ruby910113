@@ -1,36 +1,38 @@
-Type: Package
 Package: BHAIBYE
+Type: Package
 Title: HAI Burden Analysis and Shiny App
 Version: 0.1.0
-Authors@R: 
-    person("Ting-Ting", "Wu", , "twuu0083@student.monash.edu", role = c("aut", "cre"))
+Authors@R: c(
+    person(
+      "Ting-Ting", "Wu",
+      email = "twuu0083@student.monash.edu",
+      role = c("aut", "cre")
+    )
+  )
 Description: A small, teaching-focused package for exploring the burden of
     healthcare-associated infections (HAIs). It ships two compact datasets
     (annual totals and rates per 100,000) and a Shiny app to visualise HAI
-    cases, deaths and DALYs, and to compare Germany (German PPS) with the
-    EU/EEA (ECDC PPS). Launch the interactive explorer with
-    'launch_app()'.
+    cases, deaths and DALYs, and to compare Germany (German PPS) with the EU/EEA
+    (ECDC PPS). Launch the interactive explorer with 'launch_app()'.
 License: MIT + file LICENSE
-URL: 
+URL: https://ETC5523-2025.github.io/assignment-4-packages-and-shiny-apps-ruby910113,
     https://github.com/ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113
-BugReports: 
-    https://github.com/ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113/issues
+BugReports: https://github.com/ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113/issues
+Encoding: UTF-8
+LazyData: true
 Depends:
     R (>= 3.5)
 Imports:
-    bslib,
-    dplyr,
-    ggplot2,
-    plotly,
-    scales,
     shiny,
-    tidyr
+    plotly,
+    ggplot2,
+    dplyr,
+    tidyr,
+    bslib,
+    scales
 Suggests:
     knitr,
     rmarkdown
-VignetteBuilder: 
-    knitr
-Encoding: UTF-8
-LazyData: true
+VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3

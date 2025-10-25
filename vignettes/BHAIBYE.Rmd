@@ -1,8 +1,10 @@
 ---
 title: "Getting started with BHAIBYE"
+author: "Ting-Ting Wu"
+date: "2025-10-25"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting started with BHAIBYE}
+  %\VignetteIndexEntry{BHAIBYE}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,8 +17,6 @@ knitr::opts_chunk$set(
 ```
 
 ## Overview
-
-Overview
 
 BHAIBYE is a small teaching package with an interactive Shiny app and two
 tidy datasets to explore the burden of healthcare-associated infections (HAIs)

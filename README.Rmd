@@ -18,10 +18,10 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-**BHAIBYE** is a teaching package that ships a small, tidy dataset and a Shiny
-explorer for the burden of healthcare-associated infections (HAIs) in
-Germany and the EU/EEA. The numbers are based on the published BHAI workflow
-(Burden of Healthcare-Associated Infections) and let you:
+## Overview
+
+**BHAIBYE** is a teaching package that ships a small, tidy dataset and a Shiny explorer for the burden of healthcare-associated infections (HAIs) in
+Germany and the EU/EEA. The numbers are based on the published BHAI workflow (Burden of Healthcare-Associated Infections) and let you:
 
 - explore per-HAI totals with bubble and bar charts,
 
@@ -72,9 +72,24 @@ Launch it with:
 BHAIBYE::launch_app()
 ```
 
+## Documentation
+
+For more details, see the full documentation website:
+
+- **Site home:** <https://ETC5523-2025.github.io/assignment-4-packages-and-shiny-apps-ruby910113>
+
 ## Sources & citation
 
 - Article available from Eurosurveillance: <https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext>
+
+### License
+
+This package is released under the MIT License.
+See the included LICENSE / LICENSE.md files for the full terms.
+
+### Authors
+
+Ting-Ting, Wu (author & maintainer)
 
 ## Contributing
 

@@ -1,54 +1,46 @@
-#' BHAI summary by infection type (annual totals)
+#' BHAI summary by infection type (annual totals, Germany – German PPS)
 #'
-#' Annual estimates for five healthcare-associated infections (HAIs) used by
-#' the demo Shiny app. Includes point estimates and 95% uncertainty intervals.
+#' Estimated healthcare-associated infections (HAIs) by infection type with
+#' point estimates and 95% uncertainty intervals (UI).
 #'
-#' @format A data frame with 18 variables:
+#' @format A data frame with columns:
 #' \describe{
-#'   \item{geo}{character. Geography (e.g., "Germany", "EU/EEA").}
-#'   \item{sample}{character. Data source / sample (e.g., "German PPS", "ECDC PPS (EU/EEA)").}
-#'   \item{hai}{character. Infection type: HAP, UTI, BSI, SSI, CDI.}
-#'   \item{cases}{numeric. Estimated annual incident infections.}
-#'   \item{cases_low}{numeric. 95\% UI lower bound for \code{cases}.}
-#'   \item{cases_high}{numeric. 95\% UI upper bound for \code{cases}.}
-#'   \item{deaths}{numeric. Estimated annual attributable deaths.}
-#'   \item{deaths_low}{numeric. 95\% UI lower bound for \code{deaths}.}
-#'   \item{deaths_high}{numeric. 95\% UI upper bound for \code{deaths}.}
-#'   \item{dalys}{numeric. Disability-adjusted life years (YLL + YLD).}
-#'   \item{dalys_low}{numeric. 95\% UI lower bound for \code{dalys}.}
-#'   \item{dalys_high}{numeric. 95\% UI upper bound for \code{dalys}.}
-#'   \item{yll}{numeric. Years of life lost.}
-#'   \item{yll_low}{numeric. 95\% UI lower bound for \code{yll}.}
-#'   \item{yll_high}{numeric. 95\% UI upper bound for \code{yll}.}
-#'   \item{yld}{numeric. Years lived with disability.}
-#'   \item{yld_low}{numeric. 95\% UI lower bound for \code{yld}.}
-#'   \item{yld_high}{numeric. 95\% UI upper bound for \code{yld}.}
+#'   \item{geo}{Geography (e.g., "Germany").}
+#'   \item{sample}{Data source (e.g., "German PPS").}
+#'   \item{hai}{HAI type: HAP, UTI, BSI, SSI, CDI.}
+#'   \item{cases}{Estimated incident infections (annual).}
+#'   \item{cases_low}{Lower 95\% UI for cases.}
+#'   \item{cases_high}{Upper 95\% UI for cases.}
+#'   \item{deaths}{Attributable deaths (annual).}
+#'   \item{deaths_low}{Lower 95\% UI for deaths.}
+#'   \item{deaths_high}{Upper 95\% UI for deaths.}
+#'   \item{dalys}{Disability-adjusted life years (YLL + YLD).}
+#'   \item{dalys_low}{Lower 95\% UI for DALYs.}
+#'   \item{dalys_high}{Upper 95\% UI for DALYs.}
+#'   \item{yll}{Years of life lost.}
+#'   \item{yld}{Years lived with disability.}
 #' }
-#' @source Zacher et al. (2019), BHAI methodology.
+#' @source Zacher et al. (2019), Eurosurveillance.
 #' @keywords datasets
-#' @examples
-#' data(bhai_summary)
-#' head(bhai_summary)
+#' @usage data(bhai_summary)
 "bhai_summary"
 
-#' BHAI aggregate rates per 100,000 population
+#' BHAI rates per 100,000 population (Germany vs EU/EEA)
 #'
-#' Population-standardised rates for HAIs, deaths and DALYs used by the
-#' Geo comparison view in the Shiny app. Includes 95\% uncertainty intervals.
+#' Population-standardised rates by HAI type and metric (HAIs, Deaths, DALYs)
+#' with 95\% UI for German PPS and ECDC PPS (EU/EEA).
 #'
-#' @format A data frame with 7 variables:
+#' @format A data frame with columns:
 #' \describe{
-#'   \item{geo}{character. Geography (e.g., "Germany", "EU/EEA").}
-#'   \item{sample}{character. Data source / sample (e.g., "German PPS", "ECDC PPS (EU/EEA)").}
-#'   \item{hai}{character. Infection type label (HAP, UTI, BSI, SSI, CDI, or "All").}
-#'   \item{metric}{character. One of "HAIs", "Deaths", "DALYs".}
-#'   \item{per100k}{numeric. Rate per 100,000 population.}
-#'   \item{per100k_low}{numeric. 95\% UI lower bound for \code{per100k}.}
-#'   \item{per100k_high}{numeric. 95\% UI upper bound for \code{per100k}.}
+#'   \item{geo}{Geography ("Germany", "EU/EEA").}
+#'   \item{sample}{Data source ("German PPS", "ECDC PPS (EU/EEA)").}
+#'   \item{hai}{HAI type: HAP, UTI, BSI, SSI, CDI.}
+#'   \item{metric}{One of "HAIs", "Deaths", "DALYs".}
+#'   \item{per100k}{Rate per 100{,}000 population.}
+#'   \item{per100k_low}{Lower 95\% UI.}
+#'   \item{per100k_high}{Upper 95\% UI.}
 #' }
-#' @source Zacher et al. (2019), BHAI methodology.
+#' @source Zacher et al. (2019), Eurosurveillance.
 #' @keywords datasets
-#' @examples
-#' data(bhai_rates)
-#' subset(bhai_rates, geo == "Germany" & metric == "DALYs")
+#' @usage data(bhai_rates)
 "bhai_rates"

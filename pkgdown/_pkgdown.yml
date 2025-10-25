@@ -1,4 +1,48 @@
-url: ~
+# pkgdown/_pkgdown.yml
+url: https://ETC5523-2025.github.io/assignment-4-packages-and-shiny-apps-ruby910113
+
 template:
   bootstrap: 5
+  bslib:
+    primary: "#283618"
+    bg: "#fafaf7"
+    fg: "#283618"
+    headings-color: "#283618"
+    navbar-dark-bg: "#283618"
 
+home:
+  title: "BHAIBYE: HAI Burden Explorer"
+  description: >
+    An R package with an interactive Shiny app and tidy datasets to explore the
+    burden of healthcare-associated infections (HAIs) in Germany and the EU/EEA.
+    Compare cases, deaths, and DALYs; view uncertainty; and read a guided, reproducible vignette.
+
+navbar:
+  structure:
+    left:  [reference, examples]
+    right: [github]
+  components:
+    reference:
+      text: "Reference"
+      href: reference/index.html
+    examples:
+      text: "Examples"
+      href: articles/BHAIBYE.html  
+    github:
+      icon: fab fa-github
+      href: https://github.com/ruby910113
+      aria-label: "GitHub repository"
+
+reference:
+  - title: "Launch the app"
+    contents:
+      - starts_with("launch_app")
+  - title: "Data"
+    contents:
+      - bhai_summary
+      - bhai_rates
+
+articles:
+  - title: "Examples"
+    contents:
+      - BHAIBYE
