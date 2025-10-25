@@ -11,7 +11,7 @@ data("bhai_rates",   package = utils::packageName())
 # ---- Constants ----
 HAI_LEVELS <- c("HAP","UTI","BSI","SSI","CDI")
 
-# Custom bar colors mapped to HAI types (in order HAP, UTI, BSI, SSI, CDI)
+# Custom bar colors mapped to HAI types
 HAI_COLORS <- c(
   HAP = "#a3a380",
   UTI = "#d6ce93",
@@ -83,7 +83,7 @@ ui <- tagList(
         tags$h4("Method workflow (BHAI)"),
         tags$ol(
           tags$li("Estimate hospital prevalence from PPS."),
-          tags$li("Convert prevalence to incidence (modified Rhame–Sudderth; Grenander/mean for LOI)."),
+          tags$li("Convert prevalence to incidence (modified Rhame-Sudderth; Grenander/mean for LOI)."),
           tags$li("Extrapolate incidence per patient to population using discharges."),
           tags$li("Stratify by age/sex; adjust remaining life expectancy via McCabe categories."),
           tags$li("Apply outcome trees to compute YLL, YLD, and DALYs.")
@@ -91,7 +91,7 @@ ui <- tagList(
         tags$hr(),
         tags$h4("Data description"),
         tags$p("The analysis draws on estimates produced with the Burden of Healthcare-Associated Infections (BHAI) workflow."),
-        tags$p(tags$b("Data sources: "), "the 2011 German point-prevalence survey (PPS) and the 2011–2012 EU/EEA PPS."),
+        tags$p(tags$b("Data sources: "), "the 2011 German point-prevalence survey (PPS) and the 2011-2012 EU/EEA PPS."),
         tags$p(
           tags$b("Download: "),
           "Article is available from ",
@@ -106,11 +106,11 @@ ui <- tagList(
         ),
         tags$p(tags$b("HAI types included:")),
         tags$ul(
-          tags$li(tags$b("HAP"), " – healthcare-associated pneumonia"),
-          tags$li(tags$b("BSI"), " – primary bloodstream infection"),
-          tags$li(tags$b("UTI"), " – urinary tract infection"),
-          tags$li(tags$b("SSI"), " – surgical-site infection"),
-          tags$li(tags$b("CDI"), " – ", tags$i("Clostridioides difficile"), " infection")
+          tags$li(tags$b("HAP"), " - healthcare-associated pneumonia"),
+          tags$li(tags$b("BSI"), " - primary bloodstream infection"),
+          tags$li(tags$b("UTI"), " - urinary tract infection"),
+          tags$li(tags$b("SSI"), " - surgical-site infection"),
+          tags$li(tags$b("CDI"), " - ", tags$i("Clostridioides difficile"), " infection")
         )
       )
     ),
@@ -123,7 +123,7 @@ ui <- tagList(
 
 server <- function(input, output, session) {
   
-  # ---- Base subsets for HAI-level views (Germany/German PPS only) ----
+  # ---- Base subsets for HAI-level views  ----
   base_all_hai <- reactive({
     bhai_summary |> filter(geo == "Germany", sample == "German PPS")
   })
@@ -138,7 +138,7 @@ server <- function(input, output, session) {
   
   output$plot <- renderPlotly({
     
-    # ---- Geo comparison (Germany vs EU/EEA), per-N scaling, with 95% UI ----
+    # ---- Geo comparison (Germany vs EU/EEA) ----
     if (input$view == "compare") {
       cmp_metric <- req(input$cmp_metric)
       perN <- req(input$perN)
@@ -175,7 +175,7 @@ server <- function(input, output, session) {
         )
       ) +
         geom_col(position = dodge, width = 0.6) +
-        # 95% UI error bars (with caps)
+        # 95% UI error bars 
         geom_errorbar(aes(ymin = perN_low, ymax = perN_high),
                       position = dodge, width = 0.2, linewidth = 0.4) +
         labs(
@@ -186,14 +186,13 @@ server <- function(input, output, session) {
         ) +
         theme_minimal() +
         theme(legend.title = element_blank()) +
-        # Two-sample color palette: a3a380 (DE), bb8588 (EU/EEA)
         scale_fill_manual(values = c("German PPS" = "#a3a380",
                                      "ECDC PPS (EU/EEA)" = "#bb8588"))
       
       return(ggplotly(p, tooltip = "text"))
     }
     
-    # ---- Bubble (per HAI; 95% UI in hover; single color) ----
+    # ---- Bubble ----
     df_base <- base_all_hai()
     df <- dat_filtered()
     validate(need(nrow(df) > 0, "Please select at least one HAI type in the sidebar."))
@@ -201,7 +200,6 @@ server <- function(input, output, session) {
     if (input$view == "bubble") {
       p <- ggplot(df, aes(x = cases, y = deaths)) +
         geom_point(
-          # fixed color for all bubbles
           color = "#d8a48f",
           shape = 16,
           aes(size = dalys,
@@ -226,11 +224,11 @@ server <- function(input, output, session) {
       return(ggplotly(p, tooltip = "text"))
     }
     
-    # ---- HAI-level Bar (Germany; chosen metric; 95% UI error bars + custom colors) ----
+    # ---- HAI-level Bar  ----
     metric <- req(input$metric)
-    metric_col <- METRICS[[metric]]         # "cases" / "deaths" / "dalys"
-    low_col  <- paste0(metric_col, "_low")  # e.g. "cases_low"
-    high_col <- paste0(metric_col, "_high") # e.g. "cases_high"
+    metric_col <- METRICS[[metric]]        
+    low_col  <- paste0(metric_col, "_low") 
+    high_col <- paste0(metric_col, "_high")
     
     order <- HAI_LEVELS[HAI_LEVELS %in% df$hai]
     df <- df |> mutate(hai = factor(hai, levels = order))
@@ -251,7 +249,7 @@ server <- function(input, output, session) {
       )
     ) +
       geom_col(width = 0.7, show.legend = FALSE) +
-      # 95% UI error bars (with caps)
+      # 95% UI error bars
       geom_errorbar(
         aes(ymin = .data[[low_col]], ymax = .data[[high_col]]),
         width = 0.2, linewidth = 0.4
