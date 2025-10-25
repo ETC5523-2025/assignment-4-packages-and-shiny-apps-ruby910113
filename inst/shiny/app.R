@@ -125,11 +125,11 @@ server <- function(input, output, session) {
   
   # ---- Base subsets for HAI-level views  ----
   base_all_hai <- reactive({
-    bhai_summary |> filter(geo == "Germany", sample == "German PPS")
+    bhai_summary %>% filter(geo == "Germany", sample == "German PPS")
   })
   
   dat_filtered <- reactive({
-    base_all_hai() |> filter(hai %in% input$hai)
+    base_all_hai() %>% filter(hai %in% input$hai)
   })
   
   global_xmax <- reactive(max(base_all_hai()$cases,  na.rm = TRUE))
@@ -143,10 +143,10 @@ server <- function(input, output, session) {
       cmp_metric <- req(input$cmp_metric)
       perN <- req(input$perN)
       
-      rates <- bhai_rates |>
+      rates <- bhai_rates %>%
         filter(sample %in% c("German PPS", "ECDC PPS (EU/EEA)"),
                hai %in% HAI_LEVELS,
-               metric == cmp_metric) |>
+               metric == cmp_metric) %>%
         mutate(
           perN = perN,
           scale_fac = perN / 100000,
@@ -160,7 +160,7 @@ server <- function(input, output, session) {
       validate(need(nrow(rates) > 0, "No data available for geo comparison."))
       dodge <- position_dodge(width = 0.7)
       
-      p <- ggplot(
+      bar_compare <- ggplot(
         rates,
         aes(
           x = hai, y = perN_val, fill = sample,
@@ -189,7 +189,7 @@ server <- function(input, output, session) {
         scale_fill_manual(values = c("German PPS" = "#a3a380",
                                      "ECDC PPS (EU/EEA)" = "#bb8588"))
       
-      return(ggplotly(p, tooltip = "text"))
+      return(ggplotly(bar_compare, tooltip = "text"))
     }
     
     # ---- Bubble ----
@@ -198,7 +198,7 @@ server <- function(input, output, session) {
     validate(need(nrow(df) > 0, "Please select at least one HAI type in the sidebar."))
     
     if (input$view == "bubble") {
-      p <- ggplot(df, aes(x = cases, y = deaths)) +
+      bubble_plot <- ggplot(df, aes(x = cases, y = deaths)) +
         geom_point(
           color = "#d8a48f",
           shape = 16,
@@ -221,7 +221,7 @@ server <- function(input, output, session) {
         labs(x = "HAIs (annual)", y = "Attributable deaths (annual)", size = "DALYs") +
         theme_minimal()
       
-      return(ggplotly(p, tooltip = "text"))
+      return(ggplotly(bubble_plot, tooltip = "text"))
     }
     
     # ---- HAI-level Bar  ----
@@ -231,12 +231,12 @@ server <- function(input, output, session) {
     high_col <- paste0(metric_col, "_high")
     
     order <- HAI_LEVELS[HAI_LEVELS %in% df$hai]
-    df <- df |> mutate(hai = factor(hai, levels = order))
+    df <- df %>% mutate(hai = factor(hai, levels = order))
     
     # Use the CI high bound to set a comfortable axis limit
     y_max <- max(df[[metric_col]], df[[high_col]], na.rm = TRUE) * 1.10
     
-    p <- ggplot(
+    bar_plot <- ggplot(
       df,
       aes(
         x = hai, y = .data[[metric_col]], fill = hai,
@@ -260,7 +260,7 @@ server <- function(input, output, session) {
       labs(x = "HAI type", y = metric) +
       theme_minimal()
     
-    return(ggplotly(p, tooltip = "text") %>%
+    return(ggplotly(bar_plot, tooltip = "text") %>%
                               layout(showlegend = FALSE))
   })
 }
