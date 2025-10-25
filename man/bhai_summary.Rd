@@ -5,27 +5,40 @@
 \alias{bhai_summary}
 \title{BHAI summary by infection type (annual totals)}
 \format{
-A data frame with 8 variables:
+A data frame with 18 variables:
 \describe{
-  \item{geo}{character. Geography (e.g., "Germany", "EU/EEA").}
-  \item{sample}{character. Sample/data source (e.g., "German PPS",
-  "German convenience", "ECDC PPS").}
-  \item{hai}{character. Infection type (HAP, UTI, BSI, SSI, CDI).}
-  \item{cases}{numeric. Estimated number of incident infections (annual).}
-  \item{deaths}{numeric. Estimated attributable deaths (annual).}
-  \item{dalys}{numeric. Disability-adjusted life years (YLL + YLD).}
-  \item{yll}{numeric. Years of life lost.}
-  \item{yld}{numeric. Years lived with disability.}
+\item{geo}{character. Geography (e.g., "Germany", "EU/EEA").}
+\item{sample}{character. Data source / sample (e.g., "German PPS", "ECDC PPS (EU/EEA)").}
+\item{hai}{character. Infection type: HAP, UTI, BSI, SSI, CDI.}
+\item{cases}{numeric. Estimated annual incident infections.}
+\item{cases_low}{numeric. 95\\% UI lower bound for \code{cases}.}
+\item{cases_high}{numeric. 95\\% UI upper bound for \code{cases}.}
+\item{deaths}{numeric. Estimated annual attributable deaths.}
+\item{deaths_low}{numeric. 95\\% UI lower bound for \code{deaths}.}
+\item{deaths_high}{numeric. 95\\% UI upper bound for \code{deaths}.}
+\item{dalys}{numeric. Disability-adjusted life years (YLL + YLD).}
+\item{dalys_low}{numeric. 95\\% UI lower bound for \code{dalys}.}
+\item{dalys_high}{numeric. 95\\% UI upper bound for \code{dalys}.}
+\item{yll}{numeric. Years of life lost.}
+\item{yll_low}{numeric. 95\\% UI lower bound for \code{yll}.}
+\item{yll_high}{numeric. 95\\% UI upper bound for \code{yll}.}
+\item{yld}{numeric. Years lived with disability.}
+\item{yld_low}{numeric. 95\\% UI lower bound for \code{yld}.}
+\item{yld_high}{numeric. 95\\% UI upper bound for \code{yld}.}
 }
 }
 \source{
-Zacher et al. (2019) BHAI methodology
+Zacher et al. (2019), BHAI methodology.
 }
 \usage{
-data(bhai_summary)
+bhai_summary
 }
 \description{
-A dataset of estimated healthcare-associated infections (HAIs) by infection
-type, used for demonstration and the Shiny app.
+Annual estimates for five healthcare-associated infections (HAIs) used by
+the demo Shiny app. Includes point estimates and 95\% uncertainty intervals.
+}
+\examples{
+data(bhai_summary)
+head(bhai_summary)
 }
 \keyword{datasets}

@@ -5,23 +5,29 @@
 \alias{bhai_rates}
 \title{BHAI aggregate rates per 100,000 population}
 \format{
-A data frame with 5 variables:
+A data frame with 7 variables:
 \describe{
-  \item{geo}{character. Geography (e.g., "Germany", "EU/EEA").}
-  \item{sample}{character. Sample/data source (e.g., "German PPS", "ECDC PPS").}
-  \item{hai}{character. Infection type label; usually "All".}
-  \item{metric}{character. Measure name: "HAIs", "Deaths", or "DALYs".}
-  \item{per100k}{numeric. Rate per 100{,}000 population.}
+\item{geo}{character. Geography (e.g., "Germany", "EU/EEA").}
+\item{sample}{character. Data source / sample (e.g., "German PPS", "ECDC PPS (EU/EEA)").}
+\item{hai}{character. Infection type label (HAP, UTI, BSI, SSI, CDI, or "All").}
+\item{metric}{character. One of "HAIs", "Deaths", "DALYs".}
+\item{per100k}{numeric. Rate per 100,000 population.}
+\item{per100k_low}{numeric. 95\\% UI lower bound for \code{per100k}.}
+\item{per100k_high}{numeric. 95\\% UI upper bound for \code{per100k}.}
 }
 }
 \source{
-Zacher et al. (2019) BHAI methodology
+Zacher et al. (2019), BHAI methodology.
 }
 \usage{
-data(bhai_rates)
+bhai_rates
 }
 \description{
-A small dataset of population-standardised rates across all HAIs, used for
-demonstration and the Shiny app.
+Population-standardised rates for HAIs, deaths and DALYs used by the
+Geo comparison view in the Shiny app. Includes 95\\% uncertainty intervals.
+}
+\examples{
+data(bhai_rates)
+subset(bhai_rates, geo == "Germany" & metric == "DALYs")
 }
 \keyword{datasets}

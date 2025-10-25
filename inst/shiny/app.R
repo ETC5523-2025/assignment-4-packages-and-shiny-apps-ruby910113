@@ -3,10 +3,13 @@ library(shiny)
 library(plotly)
 library(dplyr)
 library(ggplot2)
+library(tidyr)
+library(bslib)
+library(scales)
 
 # ---- Data ----
-data("bhai_summary", package = utils::packageName())
-data("bhai_rates",   package = utils::packageName())
+data("bhai_summary", package = "BHAIBYE")
+data("bhai_rates",   package = "BHAIBYE")
 
 # ---- Constants ----
 HAI_LEVELS <- c("HAP","UTI","BSI","SSI","CDI")
@@ -23,10 +26,9 @@ HAI_COLORS <- c(
 METRICS <- c("HAIs" = "cases", "Deaths" = "deaths", "DALYs" = "dalys")
 
 ui <- tagList(
-  
   navbarPage(
     title = "HAI Burden Explorer (BHAI) - Germany (German PPS)",
-    theme = bs_theme(version = 5, bootswatch = "flatly", primary   = "#283618"),
+    theme = bs_theme(version = 5, bootswatch = "flatly", primary = "#283618"),
     tabPanel(
       "Explore",
       sidebarLayout(
@@ -64,6 +66,12 @@ ui <- tagList(
           div(
             style = "border:1px solid #cfcfcf; border-radius:8px; padding:8px; background:#fff;",
             plotlyOutput("plot", height = 420)
+          ),
+          conditionalPanel(
+            condition = "input.view == 'compare'",
+            tags$hr(),
+            tags$h5(tags$b("Geo comparison - text summary")),
+            htmlOutput("cmp_text")  
           ),
           tags$hr(),
           tags$h5(tags$b("How to interpret")),
@@ -111,13 +119,33 @@ ui <- tagList(
           tags$li(tags$b("UTI"), " - urinary tract infection"),
           tags$li(tags$b("SSI"), " - surgical-site infection"),
           tags$li(tags$b("CDI"), " - ", tags$i("Clostridioides difficile"), " infection")
+        ),
+        tags$hr(),
+        tags$h4("Field meanings"),
+        tags$ul(
+          tags$li(tags$code("geo"), ": geography label (e.g. Germany, EU/EEA)"),
+          tags$li(tags$code("sample"), ": data source label (e.g. German PPS, ECDC PPS (EU/EEA))"),
+          tags$li(tags$code("hai"), ": HAI type (HAP, UTI, BSI, SSI, CDI)"),
+          tags$li(tags$code("cases"), ": estimated annual incident infections"),
+          tags$li(tags$code("deaths"), ": attributable deaths (annual)"),
+          tags$li(tags$code("dalys"), ": disability-adjusted life years (YLL + YLD)"),
+          tags$li(tags$code("yll"), ": years of life lost"),
+          tags$li(tags$code("yld"), ": years lived with disability"),
+          tags$li(
+            tags$code("metric"), " (in rates table): one of ",
+            tags$code("HAIs"), ", ", tags$code("Deaths"), ", ", tags$code("DALYs")
+          ),
+          tags$li(
+            tags$code("per100k"), ", ", tags$code("per100k_low"), ", ", tags$code("per100k_high"),
+            ": rate per 100,000 population and its 95% UI"
+          )
         )
       )
     ),
     # load custom CSS
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "app.css")
-    ),
+    )
   )
 )
 
@@ -136,26 +164,33 @@ server <- function(input, output, session) {
   global_ymax <- reactive(max(base_all_hai()$deaths, na.rm = TRUE))
   global_dalys_max <- reactive(max(base_all_hai()$dalys, na.rm = TRUE))
   
+  # ---- rates for Geo comparison (per-N, filtered to selected metric) ----
+  cmp_rates <- reactive({
+    req(input$view == "compare")
+    cmp_metric <- req(input$cmp_metric)
+    perN <- req(input$perN)
+    bhai_rates %>%
+      filter(sample %in% c("German PPS", "ECDC PPS (EU/EEA)"),
+             hai %in% HAI_LEVELS,
+             metric == cmp_metric) %>%
+      mutate(
+        perN = perN,
+        scale_fac = perN / 100000,
+        perN_val  = per100k      * scale_fac,
+        perN_low  = per100k_low  * scale_fac,
+        perN_high = per100k_high * scale_fac,
+        hai = factor(hai, levels = HAI_LEVELS),
+        sample = factor(sample, levels = c("German PPS", "ECDC PPS (EU/EEA)"))
+      )
+  })
+  
   output$plot <- renderPlotly({
     
     # ---- Geo comparison (Germany vs EU/EEA) ----
     if (input$view == "compare") {
+      rates <- cmp_rates()
       cmp_metric <- req(input$cmp_metric)
       perN <- req(input$perN)
-      
-      rates <- bhai_rates %>%
-        filter(sample %in% c("German PPS", "ECDC PPS (EU/EEA)"),
-               hai %in% HAI_LEVELS,
-               metric == cmp_metric) %>%
-        mutate(
-          perN = perN,
-          scale_fac = perN / 100000,
-          perN_val  = per100k      * scale_fac,
-          perN_low  = per100k_low  * scale_fac,
-          perN_high = per100k_high * scale_fac,
-          hai = factor(hai, levels = HAI_LEVELS),
-          sample = factor(sample, levels = c("German PPS", "ECDC PPS (EU/EEA)"))
-        )
       
       validate(need(nrow(rates) > 0, "No data available for geo comparison."))
       dodge <- position_dodge(width = 0.7)
@@ -167,10 +202,10 @@ server <- function(input, output, session) {
           text = paste0(
             "Sample: ", sample,
             "<br>HAI: ", hai,
-            "<br>", cmp_metric, " per ", scales::comma(perN), ": ",
-            scales::number(perN_val, accuracy = 0.1),
-            "<br>95% UI: [", scales::number(perN_low, accuracy = 0.1), ", ",
-            scales::number(perN_high, accuracy = 0.1), "]"
+            "<br>", cmp_metric, " per ", comma(perN), ": ",
+            number(perN_val, accuracy = 0.1),
+            "<br>95% UI: [", number(perN_low, accuracy = 0.1), ", ",
+            number(perN_high, accuracy = 0.1), "]"
           )
         )
       ) +
@@ -180,9 +215,9 @@ server <- function(input, output, session) {
                       position = dodge, width = 0.2, linewidth = 0.4) +
         labs(
           x = "HAI type",
-          y = paste0(cmp_metric, " per ", scales::comma(perN)),
+          y = paste0(cmp_metric, " per ", comma(perN)),
           title = paste0("Germany vs EU/EEA - ", cmp_metric, " per ",
-                         scales::comma(perN))
+                         comma(perN))
         ) +
         theme_minimal() +
         theme(legend.title = element_blank()) +
@@ -205,12 +240,12 @@ server <- function(input, output, session) {
           aes(size = dalys,
               text = paste0(
                 "HAI: ", hai,
-                "<br>HAIs: ", scales::comma(cases),
-                " [", scales::comma(cases_low), ", ", scales::comma(cases_high), "]",
-                "<br>Deaths: ", scales::comma(deaths),
-                " [", scales::comma(deaths_low), ", ", scales::comma(deaths_high), "]",
-                "<br>DALYs: ", scales::comma(dalys),
-                " [", scales::comma(dalys_low), ", ", scales::comma(dalys_high), "]"
+                "<br>HAIs: ", comma(cases),
+                " [", comma(cases_low), ", ", comma(cases_high), "]",
+                "<br>Deaths: ", comma(deaths),
+                " [", comma(deaths_low), ", ", comma(deaths_high), "]",
+                "<br>DALYs: ", comma(dalys),
+                " [", comma(dalys_low), ", ", comma(dalys_high), "]"
               )),
           alpha = 0.65
         ) +
@@ -242,9 +277,9 @@ server <- function(input, output, session) {
         x = hai, y = .data[[metric_col]], fill = hai,
         text = paste0(
           "HAI: ", hai,
-          "<br>", metric, ": ", scales::comma(.data[[metric_col]]),
-          "<br>95% UI: [", scales::comma(.data[[low_col]]), ", ",
-          scales::comma(.data[[high_col]]), "]"
+          "<br>", metric, ": ", comma(.data[[metric_col]]),
+          "<br>95% UI: [", comma(.data[[low_col]]), ", ",
+          comma(.data[[high_col]]), "]"
         )
       )
     ) +
@@ -260,8 +295,66 @@ server <- function(input, output, session) {
       labs(x = "HAI type", y = metric) +
       theme_minimal()
     
-    return(ggplotly(bar_plot, tooltip = "text") %>%
-                              layout(showlegend = FALSE))
+    return(ggplotly(bar_plot, tooltip = "text") %>% layout(showlegend = FALSE))
+  })
+  
+  # ---- Render text summary for Geo comparison ----
+  output$cmp_text <- renderUI({
+    req(input$view == "compare")
+    rates <- cmp_rates()
+    perN <- req(input$perN)
+    metric <- req(input$cmp_metric)
+    
+    # wide table: one column for each sample
+    wide <- rates %>%
+      select(hai, sample, perN_val) %>%
+      pivot_wider(names_from = sample, values_from = perN_val) %>%
+      mutate(
+        de = `German PPS`,
+        eu = `ECDC PPS (EU/EEA)`,
+        winner = case_when(
+          is.na(de) | is.na(eu) ~ NA_character_,
+          de > eu ~ "German PPS",
+          eu > de ~ "ECDC PPS (EU/EEA)",
+          TRUE    ~ "Tie"
+        ),
+        diff = abs(de - eu)
+      )
+    
+    items <- lapply(seq_len(nrow(wide)), function(i) {
+      hai_i <- as.character(wide$hai[i])
+      de_i  <- wide$de[i]
+      eu_i  <- wide$eu[i]
+      win_i <- wide$winner[i]
+      dif_i <- wide$diff[i]
+      
+      tail_node <- if (is.na(win_i)) {
+        NULL
+      } else if (win_i == "Tie") {
+        " (tie)."
+      } else {
+        list(" (", tags$b(win_i), " higher by ",
+             tags$b(number(dif_i, accuracy = 0.1)), ").")
+      }
+      
+      tags$li(
+        tags$b(hai_i), ": German PPS shows ",
+        tags$b(number(de_i, accuracy = 0.1)),
+        " per ", tags$b(comma(perN)),
+        " and ECDC PPS shows ",
+        tags$b(number(eu_i, accuracy = 0.1)),
+        " per ", tags$b(comma(perN)),
+        tail_node
+      )
+    })
+    
+    tags$div(
+      tags$p(
+        "Metric: ", tags$b(metric),
+        " · Scale: per ", tags$b(comma(perN))
+      ),
+      tags$ul(items)
+    )
   })
 }
 

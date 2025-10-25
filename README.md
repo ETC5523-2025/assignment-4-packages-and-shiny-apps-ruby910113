@@ -7,7 +7,19 @@
 
 <!-- badges: end -->
 
-The goal of BHAIBYE is to …
+**BHAIBYE** is a teaching package that ships a small, tidy dataset and a
+Shiny explorer for the burden of healthcare-associated infections (HAIs)
+in Germany and the EU/EEA. The numbers are based on the published BHAI
+workflow (Burden of Healthcare-Associated Infections) and let you:
+
+- explore per-HAI totals with bubble and bar charts,
+
+- compare Germany vs EU/EEA rates per N people,
+
+- view 95% uncertainty intervals (UI) for cases, deaths and DALYs.
+
+The package is intentionally lightweight: it’s meant for coursework,
+demos, and quick exploration.
 
 ## Installation
 
@@ -19,35 +31,46 @@ You can install the development version of BHAIBYE from
 pak::pak("ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113")
 ```
 
-## Example
+## Dataset Description
 
-This is a basic example which shows you how to solve a common problem:
+**Datasets**
+
+This package includes two small data frames:
+
+- `bhai_summary` - annual totals for Germany (German PPS) by HAI type,
+  with point estimates and 95% UI.
+
+- `bhai_rates` - rates per 100,000 population for Germany (German PPS)
+  and EU/EEA (ECDC PPS), by HAI type and metric (HAIs, Deaths, DALYs),
+  with 95% UI.
+
+Both datasets contain the HAI types: `HAP`, `UTI`, `BSI`, `SSI`, `CDI`.
+
+## Shiny app
+
+The package bundles a Shiny app (under inst/shiny/) to interactively
+explore the data. It provides:
+
+- Bubble plot (per HAI): cases vs deaths, bubble size = DALYs (with 95%
+  UI in tooltips)
+
+- Bar plot (per HAI): choose metric (HAIs / Deaths / DALYs), with 95% UI
+  error bars
+
+- Geo comparison: Germany vs EU/EEA per-N rates (slider to change N),
+  with 95% UI
+
+Launch it with:
 
 ``` r
-library(BHAIBYE)
-## basic example code
+BHAIBYE::launch_app()
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+## Sources & citation
 
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
+- Article available from Eurosurveillance:
+  <https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext>
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
+## Contributing
 
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+Issues and pull requests are welcome.

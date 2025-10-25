@@ -1,8 +1,8 @@
 ---
-title: "BHAIBYE"
+title: "Getting started with BHAIBYE"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{BHAIBYE}
+  %\VignetteIndexEntry{Getting started with BHAIBYE}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,6 +14,177 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+## Overview
+
+Overview
+
+BHAIBYE is a small teaching package with an interactive Shiny app and two
+tidy datasets to explore the burden of healthcare-associated infections (HAIs)
+in Germany and the EU/EEA. You can:
+
+- browse per-HAI totals (bubble / bar),
+
+- compare Germany vs EU/EEA at rates per N people (with a slider),
+
+- view 95% uncertainty intervals (UI) everywhere they matter.
+
+This vignette shows how to load the data and how to use the app effectively.
+
+## Installation
+
+```r
+install.packages("pak")
+pak::pak("ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113")
+```
+
+Load the package:
+
+```r
 library(BHAIBYE)
 ```
+
+## What data are included?
+
+Two compact data frames ship with the package:
+
+- `bhai_summary` - annual totals for Germany (German PPS) by HAI type
+with point estimates and 95% UI.
+
+- `bhai_rates` - rates per 100,000 for Germany (German PPS) and EU/EEA
+(ECDC PPS), by HAI type and metric (HAIs, Deaths, DALYs), with 95% UI.
+
+### Column guide
+
+- `geo`, `sample`, `hai` - geography, survey label, HAI type
+
+- `cases`, `deaths`, `dalys` - point estimates (annual totals)
+
+- `_low`, `_high` - lower/upper 95% UI
+
+- in `bhai_rates`: metric ∈ {`HAIs`, `Deaths`, `DALYs`}, `per100k`, `per100k_low`, `per100k_high`
+
+## Launch the Shiny app
+
+The interactive explorer lives under inst/shiny/.
+
+```r
+BHAIBYE::launch_app()
+```
+
+## App tour (what each view shows)
+
+- Bubble (per HAI)
+
+    - X = annual HAIs (cases), Y = attributable deaths; bubble size = DALYs.
+    
+    - Hover tooltips show 95% UI for cases / deaths / DALYs.
+
+- Bar (per HAI)
+    
+    - Choose metric (HAIs / Deaths / DALYs). Bars are colour-coded by HAI type.
+    
+    - Vertical error bars = 95% UI.
+
+- Geo comparison (per N)
+    
+    - Compare German PPS vs ECDC PPS (EU/EEA) for the chosen metric, as rates per N people. Use the slider to change N (e.g. 1,000 … 100,000).
+
+    - Error bars show 95% UI. Overlapping intervals suggest limited separation.
+    
+    - Read the **summary text under the plot**: for each HAI it prints  
+    
+        - **Type** - **German PPS** shows **X** per **N** and **ECDC PPS** shows **Y** per **N** (**[Who’s higher] by Δ**).  
+   
+        - This updates live when you move the slider or switch metric (it will also say **Tie** when values are equal).
+    
+## Exploration workflows
+
+These reflect the app’s features and are meant to be followed inside the UI.
+
+- Launch the app
+
+```r
+# launch_app()
+```
+
+- Which HAI drives the largest mortality in Germany?
+
+    - Go to Bar (per HAI) → set Metric = “Deaths”.
+
+    - Read off which bar is tallest; hover a bar to see the 95% UI.
+
+    - Tip: if two intervals overlap substantially, don’t over-interpret the small height difference.
+
+- Relative burden across cases, deaths, and DALYs
+
+    - Stay in Bar (per HAI) and switch Metric among HAIs / Deaths / DALYs.
+
+    - Note how UTI may dominate cases, while BSI/HAP contribute more to deaths or DALYs.
+
+- Germany vs EU/EEA comparison at your preferred scale
+
+    - Open Geo comparison (per N), choose Metric = “DALYs”.
+
+    - Set per N to 100,000 (public-health standard), then try 10,000 to match smaller constituencies; values rescale linearly.
+    
+    - Check the summary text under the plot for each HAI it prints
+
+- Magnitude check with multiple HAI types
+
+    - In Bubble (per HAI), toggle HAI types in the sidebar to focus on a subset.
+
+    - Larger bubbles and higher positions indicate greater overall burden (DALYs / deaths), even if case counts are moderate.
+
+- Communicating uncertainty
+
+    - Prefer plots with error bars (Bar / Geo comparison) for slides or reports.
+
+    - Use Bubble tooltips live during demos to keep visuals clean while retaining full numeric context.
+    
+## Sources
+
+Eurosurveillance article: <https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext>
+
+## Package Structure
+
+```r
+assignment-4-packages-and-shiny-apps-ruby910113/
+├─ R/
+│  ├─ launch_app.R                  # exported launcher
+│  └─ BHAIBYE.R                     # package-level docs
+├─ inst/
+│  └─ shiny/
+│     ├─ app.R                      # main app
+│     └─ www/
+│        └─ app.css                 # custom styles
+├─ data/ 
+│  ├─ bhai_summary.rda              # HAI totals
+│  └─ bhai_rates.rda                # Rates per 100,000 
+├─ data-raw/ 
+│  └─ bhai_dataset.R                # reads/cleans sources → saves .rda
+├─ vignettes/
+│  └─ BHAIBYE.Rmd                   # “Getting started / app tour” vignette
+├─ man/                             # Rd documentation generated by roxygen2
+|  ├─ bhai_summary.Rd
+|  ├─ bhai_rates.Rd
+│  └─ launch_app.Rd
+├─ pkgdown/                         # site configuration 
+│  └─ _pkgdown.yml
+├─ docs/                            # pkgdown site output (for GitHub Pages)
+├─ README.Rmd                       # Project homepage
+├─ README.md                        # Project homepage (rendered by Rmd)
+├─ DESCRIPTION                      # package metadata (title, version, authors)
+├─ NAMESPACE                        # exports/imports (auto-generated by roxygen2)
+├─ LICENSE                          # SPDX short license file
+├─ LICENSE.md                       # full license text 
+├─ .Rbuildignore                    # files to ignore during build
+└─ .gitignore                       # files to ignore in Git
+```
+
+## Acknowledgements
+
+This package was developed as part of an academic assessment.
+The data, methods, and interpretation logic draw on the BHAI workflow described by Zacher et al. (2019) in [Eurosurveillance](https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext).
+
+Please see the package LICENSE file for terms of use and redistribution. Any errors or omissions in this teaching package are the author’s own.
+

@@ -1,25 +1,36 @@
-Package: BHAIBYE
 Type: Package
-Title: HAI Burden Analysis & Shiny App
+Package: BHAIBYE
+Title: HAI Burden Analysis and Shiny App
 Version: 0.1.0
-Authors@R: c(
-    person(
-      "Ting-Ting", "Wu",
-      email = "twuu0083@student.monash.edu",
-      role = c("aut", "cre")
-    )
-  )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Authors@R: 
+    person("Ting-Ting", "Wu", , "twuu0083@student.monash.edu", role = c("aut", "cre"))
+Description: A small, teaching-focused package for exploring the burden of
+    healthcare-associated infections (HAIs). It ships two compact datasets
+    (annual totals and rates per 100,000) and a Shiny app to visualise HAI
+    cases, deaths and DALYs, and to compare Germany (German PPS) with the
+    EU/EEA (ECDC PPS). Launch the interactive explorer with
+    'launch_app()'.
 License: MIT + file LICENSE
-Encoding: UTF-8
-LazyData: true
-Depends: 
+URL: 
+    https://github.com/ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113
+BugReports: 
+    https://github.com/ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113/issues
+Depends:
     R (>= 3.5)
-Suggests: 
+Imports:
+    bslib,
+    dplyr,
+    ggplot2,
+    plotly,
+    scales,
+    shiny,
+    tidyr
+Suggests:
     knitr,
     rmarkdown
-VignetteBuilder: knitr
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Imports: 
-    shiny
