@@ -1,5 +1,6 @@
-# pkgdown/_pkgdown.yml
 url: https://ETC5523-2025.github.io/assignment-4-packages-and-shiny-apps-ruby910113
+
+destination: docs
 
 template:
   bootstrap: 5
