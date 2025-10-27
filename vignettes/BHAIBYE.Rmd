@@ -97,50 +97,51 @@ BHAIBYE::launch_app()
    
         - This updates live when you move the slider or switch metric (it will also say **Tie** when values are equal).
     
-## Exploration workflows
+## Example: Exploring the burden of HAIs interactively
 
-These reflect the app’s features and are meant to be followed inside the UI.
+The **BHAIBYE** app helps answer common questions about healthcare-associated infections (HAIs) in Germany and the EU/EEA.  
+Below are example questions and how you can explore them using the app.
 
-- Launch the app
+### 💡 Question 1: How do total HAIs, attributable deaths, and DALYs compare across infection types?
 
-```r
-# launch_app()
-```
+1. In the sidebar, under **View**, select **Bubble (per HAI)**.
 
-- Which HAI drives the largest mortality in Germany?
+2. Each bubble represents one infection type (HAP, UTI, BSI, SSI, CDI).
 
-    - Go to Bar (per HAI) → set Metric = “Deaths”.
+    a. The x-axis shows total annual HAIs.
 
-    - Read off which bar is tallest; hover a bar to see the 95% UI.
+    b. The y-axis shows attributable deaths.
 
-    - Tip: if two intervals overlap substantially, don’t over-interpret the small height difference.
+    c. The bubble size shows DALYs (combined YLL + YLD).
 
-- Relative burden across cases, deaths, and DALYs
+3. Hover your mouse over any bubble to see the exact numbers, including 95% uncertainty intervals.
 
-    - Stay in Bar (per HAI) and switch Metric among HAIs / Deaths / DALYs.
+4. Use the **HAI types** checkboxes to filter and compare only selected infections.
 
-    - Note how UTI may dominate cases, while BSI/HAP contribute more to deaths or DALYs.
+### 💡 Question 2: How do infection types contribute to DALYs, Deaths, and HAIs in Germany?
 
-- Germany vs EU/EEA comparison at your preferred scale
+1. In the sidebar, set **View** to **Bar (per HAI type)**.
 
-    - Open Geo comparison (per N), choose Metric = “DALYs”.
+2. Under **Metric**, choose the measure you want to explore (**DALYs, Deaths, or HAIs**).
 
-    - Set per N to 100,000 (public-health standard), then try 10,000 to match smaller constituencies; values rescale linearly.
+3. The chart displays total annual values by HAI type, with error bars indicating 95% uncertainty intervals.
+
+4. **Hover** over any bar to see exact numbers, including the 95% uncertainty interval.
+
+5. Use the **HAI types** checkboxes to filter and compare selected infections.
     
-    - Check the summary text under the plot for each HAI it prints
+### 💡 Question 3: How does Germany compare with the EU/EEA overall?
 
-- Magnitude check with multiple HAI types
+1. In the sidebar, set **View** to **Geo comparison (per N)**.
 
-    - In Bubble (per HAI), toggle HAI types in the sidebar to focus on a subset.
+2. Under **Metric**, choose the measure you want to explore (**HAIs, Deaths or DALYs**).
 
-    - Larger bubbles and higher positions indicate greater overall burden (DALYs / deaths), even if case counts are moderate.
+3. Adjust the **Scale (per N population)** slider to rescale the rates (e.g., per 100,000).
 
-- Communicating uncertainty
+4. The bar chart shows Germany vs. EU/EEA for each HAI type.
 
-    - Prefer plots with error bars (Bar / Geo comparison) for slides or reports.
+5. Read the text summary below the chart, which automatically highlights which region has higher rates and by how much.
 
-    - Use Bubble tooltips live during demos to keep visuals clean while retaining full numeric context.
-    
 ## Sources
 
 Eurosurveillance article: <https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext>

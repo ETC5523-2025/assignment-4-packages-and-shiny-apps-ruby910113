@@ -167,64 +167,68 @@ will also say <strong>Tie</strong> when values are equal).</p></li>
 </ul>
 </div>
 <div class="section level2">
-<h2 id="exploration-workflows">Exploration workflows<a class="anchor" aria-label="anchor" href="#exploration-workflows"></a>
+<h2 id="example-exploring-the-burden-of-hais-interactively">Example: Exploring the burden of HAIs interactively<a class="anchor" aria-label="anchor" href="#example-exploring-the-burden-of-hais-interactively"></a>
 </h2>
-<p>These reflect the app’s features and are meant to be followed inside
-the UI.</p>
-<ul>
-<li>Launch the app</li>
-</ul>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># launch_app()</span></span></code></pre></div>
-<ul>
+<p>The <strong>BHAIBYE</strong> app helps answer common questions about
+healthcare-associated infections (HAIs) in Germany and the EU/EEA.<br>
+Below are example questions and how you can explore them using the
+app.</p>
+<div class="section level3">
+<h3 id="question-1-how-do-total-hais-attributable-deaths-and-dalys-compare-across-infection-types">💡 Question 1: How do total HAIs, attributable deaths, and DALYs
+compare across infection types?<a class="anchor" aria-label="anchor" href="#question-1-how-do-total-hais-attributable-deaths-and-dalys-compare-across-infection-types"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li><p>In the sidebar, under <strong>View</strong>, select
+<strong>Bubble (per HAI)</strong>.</p></li>
 <li>
-<p>Which HAI drives the largest mortality in Germany?</p>
-<ul>
-<li><p>Go to Bar (per HAI) → set Metric = “Deaths”.</p></li>
-<li><p>Read off which bar is tallest; hover a bar to see the 95%
-UI.</p></li>
-<li><p>Tip: if two intervals overlap substantially, don’t over-interpret
-the small height difference.</p></li>
-</ul>
+<p>Each bubble represents one infection type (HAP, UTI, BSI, SSI,
+CDI).</p>
+<ol style="list-style-type: lower-alpha">
+<li><p>The x-axis shows total annual HAIs.</p></li>
+<li><p>The y-axis shows attributable deaths.</p></li>
+<li><p>The bubble size shows DALYs (combined YLL + YLD).</p></li>
+</ol>
 </li>
-<li>
-<p>Relative burden across cases, deaths, and DALYs</p>
-<ul>
-<li><p>Stay in Bar (per HAI) and switch Metric among HAIs / Deaths /
-DALYs.</p></li>
-<li><p>Note how UTI may dominate cases, while BSI/HAP contribute more to
-deaths or DALYs.</p></li>
-</ul>
-</li>
-<li>
-<p>Germany vs EU/EEA comparison at your preferred scale</p>
-<ul>
-<li><p>Open Geo comparison (per N), choose Metric = “DALYs”.</p></li>
-<li><p>Set per N to 100,000 (public-health standard), then try 10,000 to
-match smaller constituencies; values rescale linearly.</p></li>
-<li><p>Check the summary text under the plot for each HAI it
-prints</p></li>
-</ul>
-</li>
-<li>
-<p>Magnitude check with multiple HAI types</p>
-<ul>
-<li><p>In Bubble (per HAI), toggle HAI types in the sidebar to focus on
-a subset.</p></li>
-<li><p>Larger bubbles and higher positions indicate greater overall
-burden (DALYs / deaths), even if case counts are moderate.</p></li>
-</ul>
-</li>
-<li>
-<p>Communicating uncertainty</p>
-<ul>
-<li><p>Prefer plots with error bars (Bar / Geo comparison) for slides or
-reports.</p></li>
-<li><p>Use Bubble tooltips live during demos to keep visuals clean while
-retaining full numeric context.</p></li>
-</ul>
-</li>
-</ul>
+<li><p>Hover your mouse over any bubble to see the exact numbers,
+including 95% uncertainty intervals.</p></li>
+<li><p>Use the <strong>HAI types</strong> checkboxes to filter and
+compare only selected infections.</p></li>
+</ol>
+</div>
+<div class="section level3">
+<h3 id="question-2-how-do-infection-types-contribute-to-dalys-deaths-and-hais-in-germany">💡 Question 2: How do infection types contribute to DALYs, Deaths,
+and HAIs in Germany?<a class="anchor" aria-label="anchor" href="#question-2-how-do-infection-types-contribute-to-dalys-deaths-and-hais-in-germany"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li><p>In the sidebar, set <strong>View</strong> to <strong>Bar (per HAI
+type)</strong>.</p></li>
+<li><p>Under <strong>Metric</strong>, choose the measure you want to
+explore (<strong>DALYs, Deaths, or HAIs</strong>).</p></li>
+<li><p>The chart displays total annual values by HAI type, with error
+bars indicating 95% uncertainty intervals.</p></li>
+<li><p><strong>Hover</strong> over any bar to see exact numbers,
+including the 95% uncertainty interval.</p></li>
+<li><p>Use the <strong>HAI types</strong> checkboxes to filter and
+compare selected infections.</p></li>
+</ol>
+</div>
+<div class="section level3">
+<h3 id="question-3-how-does-germany-compare-with-the-eueea-overall">💡 Question 3: How does Germany compare with the EU/EEA
+overall?<a class="anchor" aria-label="anchor" href="#question-3-how-does-germany-compare-with-the-eueea-overall"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li><p>In the sidebar, set <strong>View</strong> to <strong>Geo
+comparison (per N)</strong>.</p></li>
+<li><p>Under <strong>Metric</strong>, choose the measure you want to
+explore (<strong>HAIs, Deaths or DALYs</strong>).</p></li>
+<li><p>Adjust the <strong>Scale (per N population)</strong> slider to
+rescale the rates (e.g., per 100,000).</p></li>
+<li><p>The bar chart shows Germany vs. EU/EEA for each HAI
+type.</p></li>
+<li><p>Read the text summary below the chart, which automatically
+highlights which region has higher rates and by how much.</p></li>
+</ol>
+</div>
 </div>
 <div class="section level2">
 <h2 id="sources">Sources<a class="anchor" aria-label="anchor" href="#sources"></a>
@@ -234,40 +238,40 @@ retaining full numeric context.</p></li>
 <div class="section level2">
 <h2 id="package-structure">Package Structure<a class="anchor" aria-label="anchor" href="#package-structure"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>assignment<span class="dv">-4</span><span class="sc">-</span>packages<span class="sc">-</span>and<span class="sc">-</span>shiny<span class="sc">-</span>apps<span class="sc">-</span>ruby910113<span class="sc">/</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>├─ ETC5523_assignment4.Rproj               </span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>├─ R<span class="sc">/</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>│  ├─ launch_app.R          <span class="co"># exported launcher</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>│  └─ BHAIBYE.R             <span class="co"># package-level docs</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>├─ inst<span class="sc">/</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>│  └─ shiny<span class="sc">/</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>│     ├─ app.R              <span class="co"># main app</span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>│     └─ www<span class="sc">/</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>│        └─ app.css         <span class="co"># custom styles</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>├─ data<span class="sc">/</span> </span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>│  ├─ bhai_summary.rda      <span class="co"># HAI totals</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>│  └─ bhai_rates.rda        <span class="co"># Rates per 100,000 </span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>├─ data<span class="sc">-</span>raw<span class="sc">/</span> </span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>│  └─ bhai_dataset.R        <span class="co"># reads/cleans sources → saves .rda</span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>├─ vignettes<span class="sc">/</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>│  └─ BHAIBYE.Rmd           <span class="co"># “Getting started / app tour” vignette</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>├─ man<span class="sc">/</span>                     <span class="co"># Rd documentation generated by roxygen2</span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="er">|</span>  ├─ bhai_summary.Rd</span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="sc">|</span>  ├─ bhai_rates.Rd</span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>│  └─ launch_app.Rd</span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>├─ pkgdown<span class="sc">/</span>                 <span class="co"># site configuration </span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>│  ├─ _pkgdown.yml</span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>│  └─ index.md              <span class="co"># Project homepage</span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>├─ docs<span class="sc">/</span>                    <span class="co"># pkgdown site output</span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>├─ README.Rmd               <span class="co"># README file for github</span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>├─ README.md                <span class="co"># rendered by README.Rmd</span></span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>├─ DESCRIPTION              <span class="co"># package metadata (title, version, authors)</span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a>├─ NAMESPACE                <span class="co"># exports/imports (auto-generated by roxygen2)</span></span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a>├─ LICENSE                  <span class="co"># SPDX short license file</span></span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a>├─ LICENSE.md               <span class="co"># full license text </span></span>
-<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a>├─ .github</span>
-<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a>├─ .Rbuildignore            <span class="co"># files to ignore during build</span></span>
-<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a>└─ .gitignore               <span class="co"># files to ignore in Git</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>assignment<span class="dv">-4</span><span class="sc">-</span>packages<span class="sc">-</span>and<span class="sc">-</span>shiny<span class="sc">-</span>apps<span class="sc">-</span>ruby910113<span class="sc">/</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>├─ ETC5523_assignment4.Rproj               </span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>├─ R<span class="sc">/</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>│  ├─ launch_app.R          <span class="co"># exported launcher</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>│  └─ BHAIBYE.R             <span class="co"># package-level docs</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>├─ inst<span class="sc">/</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>│  └─ shiny<span class="sc">/</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>│     ├─ app.R              <span class="co"># main app</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>│     └─ www<span class="sc">/</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>│        └─ app.css         <span class="co"># custom styles</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>├─ data<span class="sc">/</span> </span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>│  ├─ bhai_summary.rda      <span class="co"># HAI totals</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>│  └─ bhai_rates.rda        <span class="co"># Rates per 100,000 </span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>├─ data<span class="sc">-</span>raw<span class="sc">/</span> </span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>│  └─ bhai_dataset.R        <span class="co"># reads/cleans sources → saves .rda</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>├─ vignettes<span class="sc">/</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>│  └─ BHAIBYE.Rmd           <span class="co"># “Getting started / app tour” vignette</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>├─ man<span class="sc">/</span>                     <span class="co"># Rd documentation generated by roxygen2</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="er">|</span>  ├─ bhai_summary.Rd</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="sc">|</span>  ├─ bhai_rates.Rd</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>│  └─ launch_app.Rd</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>├─ pkgdown<span class="sc">/</span>                 <span class="co"># site configuration </span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>│  ├─ _pkgdown.yml</span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>│  └─ index.md              <span class="co"># Project homepage</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>├─ docs<span class="sc">/</span>                    <span class="co"># pkgdown site output</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>├─ README.Rmd               <span class="co"># README file for github</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>├─ README.md                <span class="co"># rendered by README.Rmd</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>├─ DESCRIPTION              <span class="co"># package metadata (title, version, authors)</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>├─ NAMESPACE                <span class="co"># exports/imports (auto-generated by roxygen2)</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>├─ LICENSE                  <span class="co"># SPDX short license file</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>├─ LICENSE.md               <span class="co"># full license text </span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>├─ .github</span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>├─ .Rbuildignore            <span class="co"># files to ignore during build</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a>└─ .gitignore               <span class="co"># files to ignore in Git</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
