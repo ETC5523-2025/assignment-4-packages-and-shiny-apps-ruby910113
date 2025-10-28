@@ -31,7 +31,7 @@ navbar:
       href: reference/index.html
     examples:
       text: "Examples"
-      href: articles/BHAIBYE.html  
+      href: examples/BHAIBYE.html  
     github:
       icon: fab fa-github
       href: https://github.com/ruby910113
