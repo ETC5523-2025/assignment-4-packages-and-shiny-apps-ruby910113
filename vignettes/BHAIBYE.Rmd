@@ -3,6 +3,8 @@ title: "Getting started with BHAIBYE"
 author: "Ting-Ting Wu"
 date: "2025-10-25"
 output: rmarkdown::html_vignette
+resource_files:
+  - figures/*.png
 vignette: >
   %\VignetteIndexEntry{BHAIBYE}
   %\VignetteEngine{knitr::rmarkdown}
@@ -132,7 +134,7 @@ Below are example questions and how you can explore them using the app.
 #| fig.alt: "Bubble chart showing HAIs on x-axis, deaths on y-axis, bubble size for DALYs; hover shows 95% UI."
 #| out.extra: 'class="img-frame"'
 
-knitr::include_graphics("articles/figures/example_bubble.png")
+knitr::include_graphics("figures/example_bubble.png")
 ```
 
 ### 💡 Question 2: How do infection types contribute to DALYs, Deaths, and HAIs in Germany?
