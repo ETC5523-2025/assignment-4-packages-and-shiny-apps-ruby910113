@@ -11,6 +11,8 @@ template:
     fg: "#283618"
     headings-color: "#283618"
     navbar-dark-bg: "#283618"
+  assets:
+    vignettes/figures/*
 
 home:
   title: "BHAIBYE: HAI Burden Explorer"
@@ -48,3 +50,4 @@ articles:
   - title: "Examples"
     contents:
       - BHAIBYE
+      

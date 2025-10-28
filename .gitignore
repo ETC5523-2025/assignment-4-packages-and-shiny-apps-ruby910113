@@ -6,3 +6,6 @@ inst/doc
 docs
 /doc/
 /Meta/
+.httr-oauth
+.DS_Store
+.quarto
