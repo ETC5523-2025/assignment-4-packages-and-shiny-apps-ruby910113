@@ -1,0 +1,36 @@
+#' HAI rates per 100,000 (Germany & EU/EEA)
+#'
+#' Rates per 100,000 population by HAI type and metric
+#' (\code{HAIs}, \code{Deaths}, \code{DALYs}) for Germany (German PPS) and the
+#' EU/EEA (ECDC PPS). Includes a row with \code{hai == "All"} that aggregates
+#' across HAI types for each metric.
+#'
+#' @format A data frame with columns:
+#' \describe{
+#'   \item{geo}{character. \code{"Germany"} or \code{"EU/EEA"}.}
+#'   \item{sample}{character. \code{"German PPS"} or \code{"ECDC PPS (EU/EEA)"}.}
+#'   \item{hai}{character. HAI type: \code{HAP}, \code{UTI}, \code{BSI},
+#'     \code{SSI}, \code{CDI}, or \code{"All"}.}
+#'   \item{metric}{character. One of \code{"HAIs"}, \code{"Deaths"}, \code{"DALYs"}.}
+#'   \item{per100k}{numeric. Point estimate per 100,000 population.}
+#'   \item{per100k_low}{numeric. Lower bound of 95\% UI.}
+#'   \item{per100k_high}{numeric. Upper bound of 95\% UI.}
+#' }
+#'
+#' @details
+#' The EU/EEA rows summarise rates from the ECDC PPS (2011–2012).
+#' Germany rows use the German PPS (2011). Some analyses may derive totals
+#' by multiplying rates with an implied population size; this dataset itself
+#' only stores rates.
+#'
+#' @source Zacher et al. (2019) Eurosurveillance.
+#' \doi{10.2807/1560-7917.ES.2019.24.46.1900135}
+#'
+#' @references
+#' Zacher B., et al. (2019). \emph{Burden of healthcare-associated infections
+#' in Germany and the EU/EEA}. Eurosurveillance, 24(46).
+#'
+#' @examples
+#' data("bhai_rates", package = "BHAIBYE")
+#' subset(bhai_rates, geo == "Germany" & metric == "DALYs")
+"bhai_rates"

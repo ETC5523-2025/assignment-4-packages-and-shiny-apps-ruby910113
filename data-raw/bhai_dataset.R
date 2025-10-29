@@ -2,6 +2,8 @@
 
 library(dplyr)
 library(tibble)
+library(tidyr)
+library(scales)
 
 # Annual totals for Germany (German PPS) with 95% UI
 bhai_summary <- tribble(
@@ -97,6 +99,267 @@ bhai_rates <- tribble(
   "EU/EEA",  "ECDC PPS (EU/EEA)",    "All", "DALYs",  290.0,      214.9,        376.9
 )
 
+## ===========================================================================
+## 1) Helpers (incl. SAFE lognormal sampler for low<=0)
+## ===========================================================================
+lnorm_params_from_ci <- function(low, high) {
+  stopifnot(all(is.finite(low)), all(is.finite(high)), all(high > low))
+  z <- qnorm(0.975)
+  sigma <- (log(high) - log(low)) / (2 * z)
+  mu    <- (log(high) + log(low)) / 2
+  list(mu = mu, sigma = sigma)
+}
+
+r_from_ci_lognorm <- function(low, high) {
+  p <- lnorm_params_from_ci(low, high)
+  rlnorm(1, meanlog = p$mu, sdlog = p$sigma)
+}
+
+# SAFE: when low<=0, use (point, high); else tiny positive fallback
+r_from_ci_lognorm_safe <- function(low, high, point = NULL) {
+  z <- qnorm(0.975)
+  if (is.finite(low) && is.finite(high) && low > 0 && high > low) {
+    p <- lnorm_params_from_ci(low, high)
+    return(rlnorm(1, meanlog = p$mu, sdlog = p$sigma))
+  }
+  if (!is.null(point) && is.finite(point) && point > 0 && is.finite(high) && high > point) {
+    sigma <- max((log(high) - log(point)) / z, 1e-6)
+    mu    <- log(point) - 0.5 * sigma^2
+    return(rlnorm(1, meanlog = mu, sdlog = sigma))
+  }
+  if (is.finite(high) && high > 0) return(runif(1, min = high * 1e-6, max = high * 1e-3))
+  1e-6
+}
+
+count_from_rate <- function(per100k, pop) (per100k / 1e5) * pop
+softmax <- function(x) exp(x) / sum(exp(x))
+rgamma_mean_cv <- function(n, mean, cv) {
+  mean <- pmax(mean, 0); cv <- pmax(cv, 1e-6)
+  shape <- 1/(cv^2); scale <- mean * (cv^2)
+  stats::rgamma(n, shape = shape, scale = scale)
+}
+
+## ===========================================================================
+## 2) Germany: draw true totals from bhai_summary (lognormal on UI)
+## ===========================================================================
+de_totals <- bhai_summary %>%
+  transmute(
+    infection_type = hai,
+    cases_point  = cases,  cases_low  = cases_low,  cases_high  = cases_high,
+    deaths_point = deaths, deaths_low = deaths_low, deaths_high = deaths_high,
+    dalys_point  = dalys,  dalys_low  = dalys_low,  dalys_high  = dalys_high,
+    yll_point    = yll,    yll_low    = yll_low,    yll_high    = yll_high,
+    yld_point    = yld,    yld_low    = yld_low,    yld_high    = yld_high
+  )
+
+# Implied DE population from "All HAIs" rate
+all_rate_de <- bhai_rates %>%
+  filter(geo == "Germany", sample == "German PPS", hai == "All", metric == "HAIs") %>%
+  pull(per100k)
+
+de_total_cases_point <- sum(de_totals$cases_point)
+pop_de_implied <- de_total_cases_point / (all_rate_de / 1e5)
+
+set.seed(5523)
+
+de_draw <- de_totals %>%
+  rowwise() %>%
+  mutate(
+    cases_true  = r_from_ci_lognorm(cases_low,  cases_high),
+    deaths_true = r_from_ci_lognorm(deaths_low, deaths_high),
+    dalys_true  = r_from_ci_lognorm(dalys_low,  dalys_high),
+    prop_yll    = if_else(dalys_point > 0, yll_point / dalys_point, 0),
+    yll_true    = dalys_true * prop_yll,
+    yld_true    = pmax(dalys_true - yll_true, 0)
+  ) %>%
+  ungroup() %>%
+  mutate(
+    p_death_true     = if_else(cases_true > 0,  deaths_true / cases_true, 0),
+    yll_per_death_m  = if_else(deaths_true > 0, yll_true   / deaths_true, 0),
+    yld_per_case_m   = if_else(cases_true  > 0, yld_true   / cases_true,  0)
+  ) %>%
+  select(infection_type, cases_true, deaths_true, dalys_true,
+         yll_true, yld_true, p_death_true, yll_per_death_m, yld_per_case_m)
+
+## ===========================================================================
+## 3) EU/EEA rates (input) → simulate counts; split DALYs into YLL/YLD
+## ===========================================================================
+eu_long <- bhai_rates %>%
+  filter(geo == "EU/EEA", sample == "ECDC PPS (EU/EEA)", hai != "All") %>%
+  transmute(
+    infection_type = trimws(hai),
+    metric         = trimws(metric),
+    per100k, per100k_low, per100k_high
+  ) %>%
+  distinct()
+
+eu_hai <- eu_long %>%
+  filter(metric == "HAIs") %>%
+  group_by(infection_type) %>% slice_head(n = 1) %>% ungroup() %>%
+  rename(per100k_HAIs = per100k, per100k_low_HAIs = per100k_low, per100k_high_HAIs = per100k_high) %>%
+  select(-metric)
+
+eu_death <- eu_long %>%
+  filter(metric == "Deaths") %>%
+  group_by(infection_type) %>% slice_head(n = 1) %>% ungroup() %>%
+  rename(per100k_Deaths = per100k, per100k_low_Deaths = per100k_low, per100k_high_Deaths = per100k_high) %>%
+  select(-metric)
+
+eu_daly <- eu_long %>%
+  filter(metric == "DALYs") %>%
+  group_by(infection_type) %>% slice_head(n = 1) %>% ungroup() %>%
+  rename(per100k_DALYs = per100k, per100k_low_DALYs = per100k_low, per100k_high_DALYs = per100k_high) %>%
+  select(-metric)
+
+eu_rates <- eu_hai %>% left_join(eu_death, by = "infection_type") %>% left_join(eu_daly, by = "infection_type")
+
+# Use Germany's YLL share by HAI to split EU DALYs into YLL/YLD
+de_yll_prop <- bhai_summary %>%
+  transmute(infection_type = hai, prop_yll = if_else(dalys > 0, yll / dalys, NA_real_))
+
+eu_yll_yld_rates <- eu_rates %>%
+  left_join(de_yll_prop, by = "infection_type") %>%
+  mutate(prop_yll = tidyr::replace_na(prop_yll, 0.7)) %>%  # fallback if any missing
+  transmute(
+    geo    = "EU/EEA",
+    sample = "ECDC PPS (EU/EEA)",
+    hai    = infection_type,
+    
+    # Point/UI for YLL (scale DALYs UI by prop_yll)
+    metric = "YLL",
+    per100k      = per100k_DALYs     * prop_yll,
+    per100k_low  = per100k_low_DALYs * prop_yll,
+    per100k_high = per100k_high_DALYs* prop_yll
+  ) %>%
+  bind_rows(
+    eu_rates %>%
+      left_join(de_yll_prop, by = "infection_type") %>%
+      mutate(prop_yll = tidyr::replace_na(prop_yll, 0.7)) %>%
+      transmute(
+        geo    = "EU/EEA",
+        sample = "ECDC PPS (EU/EEA)",
+        hai    = infection_type,
+        metric = "YLD",
+        per100k      = per100k_DALYs     * (1 - prop_yll),
+        per100k_low  = per100k_low_DALYs * (1 - prop_yll),
+        per100k_high = per100k_high_DALYs* (1 - prop_yll)
+      )
+  )
+
+# Add "All" rows for EU/EEA YLL & YLD
+eu_all_yll_yld <- eu_yll_yld_rates %>%
+  group_by(metric) %>%
+  summarise(
+    per100k = sum(per100k),
+    per100k_low = sum(per100k_low),
+    per100k_high = sum(per100k_high),
+    .groups = "drop"
+  ) %>%
+  mutate(geo = "EU/EEA", sample = "ECDC PPS (EU/EEA)", hai = "All") %>%
+  select(geo, sample, hai, metric, per100k, per100k_low, per100k_high)
+
+# Bind into bhai_rates (keeps your original rows; just adds YLL/YLD for EU/EEA)
+bhai_rates <- bhai_rates %>%
+  bind_rows(eu_yll_yld_rates, eu_all_yll_yld) %>%
+  arrange(geo, sample, factor(hai, levels = c("HAP","UTI","BSI","SSI","CDI","All")), metric)
+
+## ===========================================================================
+## 4) Build EU/EEA draw to simulate microdata (counts come from rates)
+## ===========================================================================
+pop_eu_ref <- pop_de_implied   # scale to Germany’s implied pop to keep units coherent
+
+eu_draw <- eu_rates %>%
+  rowwise() %>%
+  mutate(
+    rate_hai   = r_from_ci_lognorm_safe(per100k_low_HAIs,   per100k_high_HAIs,   point = per100k_HAIs),
+    rate_death = r_from_ci_lognorm_safe(per100k_low_Deaths, per100k_high_Deaths, point = per100k_Deaths),
+    rate_daly  = r_from_ci_lognorm_safe(per100k_low_DALYs,  per100k_high_DALYs,  point = per100k_DALYs),
+    
+    cases_true  = count_from_rate(rate_hai,   pop_eu_ref),
+    deaths_true = count_from_rate(rate_death, pop_eu_ref),
+    dalys_true  = count_from_rate(rate_daly,  pop_eu_ref)
+  ) %>%
+  ungroup() %>%
+  left_join(de_yll_prop, by = "infection_type") %>%
+  mutate(
+    prop_yll         = tidyr::replace_na(prop_yll, 0.7),
+    yll_true         = dalys_true * prop_yll,
+    yld_true         = pmax(dalys_true - yll_true, 0),
+    p_death_true     = if_else(cases_true > 0,  deaths_true / cases_true, 0),
+    yll_per_death_m  = if_else(deaths_true > 0, yll_true   / deaths_true, 0),
+    yld_per_case_m   = if_else(cases_true  > 0, yld_true   / cases_true,  0)
+  ) %>%
+  select(infection_type, cases_true, deaths_true, dalys_true,
+         yll_true, yld_true, p_death_true, yll_per_death_m, yld_per_case_m)
+
+## ===========================================================================
+## 5) Demographics (softmax age; Dirichlet-like gender)
+## ===========================================================================
+age_groups_ref <- c("0-1","2-4","5-9","10-14","15-19","20-24","25-34","35-44",
+                    "45-54","55-64","65-74","75-79","80-84","85+")
+age_logits <- scales::rescale(seq_along(age_groups_ref), to = c(-1, 2))
+age_probs  <- softmax(age_logits)
+
+gender_levels <- c("Female","Male")
+g_raw <- stats::rgamma(2, shape = 20, rate = 1)
+gender_probs <- g_raw / sum(g_raw)
+
+## ===========================================================================
+## 6) Simulator (Gamma per-case YLL/YLD) + weights
+## ===========================================================================
+simulate_micro_from_draw <- function(draw_tbl,
+                                     n_cases = 5000,
+                                     seed = 1,
+                                     yll_cv = 0.35,
+                                     yld_cv = 0.50) {
+  set.seed(seed)
+  
+  type_probs <- draw_tbl$cases_true / sum(draw_tbl$cases_true)
+  
+  infection_draw <- sample(draw_tbl$infection_type, n_cases, TRUE, type_probs)
+  age_draw      <- sample(age_groups_ref, n_cases, TRUE, age_probs)
+  gender_draw   <- sample(gender_levels,  n_cases, TRUE, gender_probs)
+  
+  df <- tibble(
+    infection_type = infection_draw,
+    age_group = age_draw,
+    gender = gender_draw
+  ) %>%
+    left_join(draw_tbl, by = "infection_type") %>%
+    rowwise() %>%
+    mutate(
+      died = stats::rbinom(1, 1, p = p_death_true),
+      yll  = if (died == 1) rgamma_mean_cv(1, mean = yll_per_death_m, cv = yll_cv) else 0,
+      yld  = rgamma_mean_cv(1, mean = yld_per_case_m,  cv = yld_cv),
+      daly = yll + yld
+    ) %>%
+    ungroup()
+  
+  n_by_type <- df %>% count(infection_type, name = "n_sim")
+  
+  df %>%
+    left_join(n_by_type, by = "infection_type") %>%
+    mutate(weight_pop = cases_true / n_sim) %>%
+    transmute(
+      hai       = infection_type,
+      age_group = age_group,
+      sex       = gender,
+      death     = died,
+      yll       = yll,
+      yld       = yld,
+      daly      = daly,
+      weight    = weight_pop
+    )
+}
+
+## ===========================================================================
+## 7) Build microdata (~5k each) and SAVE
+## ===========================================================================
+bhai_cases_de <- simulate_micro_from_draw(de_draw, n_cases = 5000, seed = 20020113)
+bhai_cases_eu <- simulate_micro_from_draw(eu_draw, n_cases = 5000, seed = 20020113)
+
 # Save
 usethis::use_data(bhai_summary, overwrite = TRUE)
 usethis::use_data(bhai_rates, overwrite = TRUE)
+usethis::use_data(bhai_cases_de, overwrite = TRUE)
+usethis::use_data(bhai_cases_eu, overwrite = TRUE)

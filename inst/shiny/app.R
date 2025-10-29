@@ -7,53 +7,80 @@ library(tidyr)
 library(bslib)
 library(scales)
 
-# ---- Data ----
-data("bhai_summary", package = "BHAIBYE")
-data("bhai_rates",   package = "BHAIBYE")
+requireNamespace("BHAIBYE", quietly = TRUE)
 
-# ---- Constants ----
+# ---- Data (loaded from package) ---------------------------------------------
+data("bhai_summary",   package = "BHAIBYE")
+data("bhai_rates",     package = "BHAIBYE")
+data("bhai_cases_de",  package = "BHAIBYE")
+data("bhai_cases_eu",  package = "BHAIBYE")
+
+# try() avoids crashing if microdata are missing
+invisible(suppressWarnings(try(utils::data("bhai_cases_de", package = "BHAIBYE"), silent = TRUE)))
+invisible(suppressWarnings(try(utils::data("bhai_cases_eu", package = "BHAIBYE"), silent = TRUE)))
+has_cases_de <- exists("bhai_cases_de", inherits = TRUE)
+has_cases_eu <- exists("bhai_cases_eu", inherits = TRUE)
+
+# ---- Constants ---------------------------------------------------------------
 HAI_LEVELS <- c("HAP","UTI","BSI","SSI","CDI")
-
-# Custom bar colors mapped to HAI types
-HAI_COLORS <- c(
-  HAP = "#a3a380",
-  UTI = "#d6ce93",
-  BSI = "#efebce",
-  SSI = "#d8a48f",
-  CDI = "#bb8588"
-)
-
+AGE_LEVELS <- c("0-1","2-4","5-9","10-14","15-19","20-24","25-34","35-44",
+                "45-54","55-64","65-74","75-79","80-84","85+")
+SAMPLE_LEVELS <- c("German PPS","ECDC PPS (EU/EEA)")
+SAMPLE_COLORS <- c("German PPS"="#a3a380", "ECDC PPS (EU/EEA)"="#bb8588")
 METRICS <- c("HAIs" = "cases", "Deaths" = "deaths", "DALYs" = "dalys")
 
+# ----------------------------- UI -------------------------------------------
 ui <- tagList(
   navbarPage(
-    title = "HAI Burden Explorer (BHAI) - Germany (German PPS)",
+    title = "HAI Burden Explorer (BHAI)",
     theme = bs_theme(version = 5, bootswatch = "flatly", primary = "#283618"),
+    
     tabPanel(
       "Explore",
       sidebarLayout(
         sidebarPanel(
-          width = 3, 
+          width = 3,
           selectInput(
             "view", "View:",
             choices = c("Bubble (per HAI)" = "bubble",
                         "Bar (per HAI)"    = "bar",
+                        "Age pyramid (DALYs, by age & sex)" = "age",
                         "Geo comparison (per N)" = "compare"),
             selected = "bubble"
           ),
           conditionalPanel(
             condition = "input.view == 'bubble' || input.view == 'bar'",
-            checkboxGroupInput("hai", "HAI types:",
-                               choices = HAI_LEVELS, selected = HAI_LEVELS)
+            checkboxGroupInput(
+              "hai", "HAI types:",
+              choices = HAI_LEVELS,
+              selected = HAI_LEVELS
+            )
+          ),
+          conditionalPanel(
+            condition = "input.view == 'bubble' || input.view == 'bar'",
+            checkboxGroupInput(
+              "samples", "Sample(s):",
+              choices = SAMPLE_LEVELS,
+              selected = "German PPS"
+            )
           ),
           conditionalPanel(
             condition = "input.view == 'bar'",
-            radioButtons("metric", "Metric:", choices = names(METRICS), selected = "DALYs")
+            radioButtons("metric", "Metric:",
+                         choices = names(METRICS),
+                         selected = "DALYs")
+          ),
+          conditionalPanel(
+            condition = "input.view == 'age'",
+            radioButtons("pyr_geo", "Sample:",
+                         choices = c("German PPS" = "DE", "ECDC PPS (EU/EEA)" = "EU"),
+                         selected = "DE")
           ),
           conditionalPanel(
             condition = "input.view == 'compare'",
             radioButtons("cmp_metric", "Metric (per N):",
-                         choices = c("HAIs", "Deaths", "DALYs"), selected = "Deaths")
+                         choices = c("HAIs", "Deaths", "DALYs"),
+                         selected = "Deaths")
           ),
           conditionalPanel(
             condition = "input.view == 'compare'",
@@ -62,251 +89,290 @@ ui <- tagList(
           )
         ),
         mainPanel(
-          tags$h4("Germany - German PPS"),
-          div(
-            style = "border:1px solid #cfcfcf; border-radius:8px; padding:8px; background:#fff;",
-            plotlyOutput("plot", height = 420)
+          tags$h4("German / ECDC - HAI"),
+          conditionalPanel(
+            condition = "input.view == 'bubble' || input.view == 'bar' || input.view == 'compare'",
+            div(
+              style = "border:1px solid #cfcfcf; border-radius:8px; padding:8px; background:#fff;",
+              plotlyOutput("plot", height = 520)
+            )
+          ),
+          conditionalPanel(
+            condition = "input.view == 'age'",
+            div(
+              style = "border:1px solid #cfcfcf; border-radius:8px; padding:8px; background:#fff;",
+              plotlyOutput("pyramid", height = 520)
+            )
           ),
           conditionalPanel(
             condition = "input.view == 'compare'",
             tags$hr(),
             tags$h5(tags$b("Geo comparison - text summary")),
-            htmlOutput("cmp_text")  
-          ),
-          tags$hr(),
-          tags$h5(tags$b("How to interpret")),
-          tags$ul(
-            tags$li(tags$b("Bubble (per HAI): "), "x-axis = annual HAIs (cases), y-axis = attributable deaths; bubble size encodes DALYs. Labels mark HAI types. Hover to see 95% UI for cases, deaths, and DALYs."),
-            tags$li(tags$b("Bar (per HAI): "), "shows Germany totals by chosen metric (HAIs, Deaths, DALYs). Error bars are 95% uncertainty intervals; bars are colour-coded by HAI type. Use this when you want clean comparisons within Germany."),
-            tags$li(tags$b("Geo comparison (per N): "), "compares ", tags$i("German PPS"), " vs ", tags$i("ECDC PPS (EU/EEA)"), " for the selected metric per N people (default N = 100,000). The slider rescales rates; error bars show 95% UI. If intervals overlap strongly, apparent differences may be non-informative."),
-            tags$li(tags$b("Reading uncertainty: "), "wide intervals indicate limited precision (e.g., smaller sample size or rarer events). Focus on magnitudes and overlap rather than tiny differences in bar heights."),
-            tags$li(tags$b("Context clues: "), "UTI tends to have large case counts with moderate DALYs; BSI has fewer cases but higher fatality burden; HAP often contributes substantially to DALYs.")
+            htmlOutput("cmp_text")
           )
         )
       )
     ),
+    
     tabPanel(
       "About",
       tagList(
         tags$h4("Method workflow (BHAI)"),
         tags$ol(
           tags$li("Estimate hospital prevalence from PPS."),
-          tags$li("Convert prevalence to incidence (modified Rhame-Sudderth; Grenander/mean for LOI)."),
-          tags$li("Extrapolate incidence per patient to population using discharges."),
-          tags$li("Stratify by age/sex; adjust remaining life expectancy via McCabe categories."),
-          tags$li("Apply outcome trees to compute YLL, YLD, and DALYs.")
-        ),
-        tags$hr(),
-        tags$h4("Data description"),
-        tags$p("The analysis draws on estimates produced with the Burden of Healthcare-Associated Infections (BHAI) workflow."),
-        tags$p(tags$b("Data sources: "), "the 2011 German point-prevalence survey (PPS) and the 2011-2012 EU/EEA PPS."),
-        tags$p(
-          tags$b("Download: "),
-          "Article is available from ",
-          tags$a(href="https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext",
-                 "Eurosurveillance", target="_blank", rel="noopener noreferrer"),
-          "; datasets and supplementary materials are available there. ",
-          "The datasets plus analysis code used in the paper are bundled with the open-source BHAI R package on CRAN (",
-          tags$a(href="https://CRAN.R-project.org/package=BHAI",
-                 "https://CRAN.R-project.org/package=BHAI",
-                 target="_blank", rel="noopener noreferrer"),
-          "), enabling full reproduction of the Germany and EU/EEA estimates."
-        ),
-        tags$p(tags$b("HAI types included:")),
-        tags$ul(
-          tags$li(tags$b("HAP"), " - healthcare-associated pneumonia"),
-          tags$li(tags$b("BSI"), " - primary bloodstream infection"),
-          tags$li(tags$b("UTI"), " - urinary tract infection"),
-          tags$li(tags$b("SSI"), " - surgical-site infection"),
-          tags$li(tags$b("CDI"), " - ", tags$i("Clostridioides difficile"), " infection")
+          tags$li("Convert prevalence to incidence."),
+          tags$li("Extrapolate incidence to population."),
+          tags$li("Stratify by age/sex; compute YLL/YLD; sum to DALYs.")
         ),
         tags$hr(),
         tags$h4("Field meanings"),
         tags$ul(
-          tags$li(tags$code("geo"), ": geography label (e.g. Germany, EU/EEA)"),
-          tags$li(tags$code("sample"), ": data source label (e.g. German PPS, ECDC PPS (EU/EEA))"),
-          tags$li(tags$code("hai"), ": HAI type (HAP, UTI, BSI, SSI, CDI)"),
-          tags$li(tags$code("cases"), ": estimated annual incident infections"),
-          tags$li(tags$code("deaths"), ": attributable deaths (annual)"),
-          tags$li(tags$code("dalys"), ": disability-adjusted life years (YLL + YLD)"),
-          tags$li(tags$code("yll"), ": years of life lost"),
-          tags$li(tags$code("yld"), ": years lived with disability"),
-          tags$li(
-            tags$code("metric"), " (in rates table): one of ",
-            tags$code("HAIs"), ", ", tags$code("Deaths"), ", ", tags$code("DALYs")
-          ),
-          tags$li(
-            tags$code("per100k"), ", ", tags$code("per100k_low"), ", ", tags$code("per100k_high"),
-            ": rate per 100,000 population and its 95% UI"
+          tags$li(code("bhai_summary"), ": Germany totals with 95% UI."),
+          tags$li(code("bhai_rates"), ": rates per 100,000 (Germany & EU/EEA)."),
+          tags$li(code("bhai_cases_de"), " / ", code("bhai_cases_eu"),
+                  ": simulated microdata with weights for age/sex analyses.")
+        ),
+        tags$hr(),
+        tags$h4("How to interpret"),
+        tags$ul(
+          tags$li(tags$b("Bubble (per HAI): "),
+                  "x-axis = HAIs (cases), y-axis = attributable deaths; bubble size = DALYs."),
+          tags$li(tags$b("Bar (per HAI): "),
+                  "grouped bars by sample for HAIs / Deaths / DALYs."),
+          tags$li(tags$b("Age pyramid: "),
+                  "mirrored bars of DALYs by age group; female left / male right."),
+          tags$li(tags$b("Geo comparison (per N): "),
+                  "Germany vs EU/EEA per N people with 95% UI.")
+        ),
+        tags$hr(),
+        tags$h4("Data description"),
+        tags$ul(
+          tags$li(tags$b("The analysis"), " draws on estimates produced with the ",
+                  tags$b("Burden of Healthcare-Associated Infections (BHAI)"), " workflow."),
+          tags$li(tags$b("Data sources:"), " the ", tags$b("2011"), " German ",
+                  tags$b("point-prevalence survey (PPS)"), " and the ", tags$b("2011-2012"),
+                  " EU/EEA PPS."),
+          tags$li(tags$b("Download:"), " data and supplementary materials are available from ",
+                  tags$a(href="https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#supplementary_data",
+                         target="_blank", "Eurosurveillance"), 
+                  ", and the datasets plus analysis code used in the paper are bundled with the open-source ",
+                  "BHAI R package on CRAN (", 
+                  tags$a(href="https://CRAN.R-project.org/package=BHAI", target="_blank", "CRAN: BHAI"), ")."),
+          tags$li(tags$b("HAI types included:"),
+                  tags$ul(
+                    tags$li(tags$b("HAP"), " - healthcare-associated pneumonia"),
+                    tags$li(tags$b("BSI"), " - primary bloodstream infection"),
+                    tags$li(tags$b("UTI"), " - urinary tract infection"),
+                    tags$li(tags$b("SSI"), " - surgical-site infection"),
+                    tags$li(tags$b("CDI"), " - Clostridioides difficile infection")
+                  )
           )
+        ),
+        tags$hr(),
+        tags$h4("Limitations"),
+        tags$p("The microdata used in this app are ",
+               tags$b("simulated"),
+               " for teaching/demo purposes. While totals and rates follow the published patterns, ",
+               "the authoritative numbers and figures are those reported in ",
+               tags$a(href="https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext",
+                      target="_blank", "the Eurosurveillance article"), "."),
+        tags$hr(),
+        tags$h4("References"),
+        tags$ul(
+          tags$li(tags$a(href="https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext",
+                         target="_blank",
+                         "Zacher et al. (2019). Burden of healthcare-associated infections in Germany and the EU/EEA. Eurosurveillance.")),
+          tags$li(tags$a(href="https://CRAN.R-project.org/package=BHAI", target="_blank",
+                         "BHAI: Burden of Healthcare-Associated Infections R package (CRAN)."))
         )
       )
     ),
-    # load custom CSS
-    tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "app.css")
-    )
+    tags$head(tags$link(rel="stylesheet", type="text/css", href="app.css"))
   )
 )
 
+# --------------------------- Server -----------------------------------------
 server <- function(input, output, session) {
   
-  # ---- Base subsets for HAI-level views  ----
-  base_all_hai <- reactive({
-    bhai_summary %>% filter(geo == "Germany", sample == "German PPS")
+  # Build totals after checking inputs (calls package helper via :::)
+  totals_selected <- reactive({
+    req(input$view %in% c("bubble", "bar"))
+    validate(need(length(input$samples) > 0,
+                  "Select at least one sample (German PPS and/or ECDC PPS (EU/EEA))."))
+    validate(need(length(input$hai) > 0,
+                  "Select at least one HAI type."))
+    big_totals <- dplyr::bind_rows(lapply(input$samples, BHAIBYE:::totals_for_sample))
+    big_totals %>% dplyr::filter(hai %in% input$hai)
   })
   
-  dat_filtered <- reactive({
-    base_all_hai() %>% filter(hai %in% input$hai)
-  })
-  
-  global_xmax <- reactive(max(base_all_hai()$cases,  na.rm = TRUE))
-  global_ymax <- reactive(max(base_all_hai()$deaths, na.rm = TRUE))
-  global_dalys_max <- reactive(max(base_all_hai()$dalys, na.rm = TRUE))
-  
-  # ---- rates for Geo comparison (per-N, filtered to selected metric) ----
+  # Prepare per-N compare rates
   cmp_rates <- reactive({
     req(input$view == "compare")
-    cmp_metric <- req(input$cmp_metric)
-    perN <- req(input$perN)
-    bhai_rates %>%
-      filter(sample %in% c("German PPS", "ECDC PPS (EU/EEA)"),
-             hai %in% HAI_LEVELS,
-             metric == cmp_metric) %>%
-      mutate(
-        perN = perN,
-        scale_fac = perN / 100000,
-        perN_val  = per100k      * scale_fac,
-        perN_low  = per100k_low  * scale_fac,
-        perN_high = per100k_high * scale_fac,
+    chosen_metric <- req(input$cmp_metric)
+    chosen_perN   <- req(input$perN)
+    rate_tbl <- bhai_rates %>%
+      dplyr::filter(sample %in% c("German PPS", "ECDC PPS (EU/EEA)"),
+                    hai %in% HAI_LEVELS,
+                    metric == chosen_metric)
+    scale_factor <- chosen_perN / 100000
+    rate_tbl %>%
+      dplyr::mutate(
+        perN = chosen_perN,
+        f = scale_factor,
+        perN_val = per100k * f,
+        perN_low = per100k_low * f,
+        perN_high = per100k_high * f,
         hai = factor(hai, levels = HAI_LEVELS),
-        sample = factor(sample, levels = c("German PPS", "ECDC PPS (EU/EEA)"))
+        sample = factor(sample, levels = SAMPLE_LEVELS)
       )
   })
   
+  # Main plot
   output$plot <- renderPlotly({
-    
-    # ---- Geo comparison (Germany vs EU/EEA) ----
-    if (input$view == "compare") {
-      rates <- cmp_rates()
-      cmp_metric <- req(input$cmp_metric)
-      perN <- req(input$perN)
-      
-      validate(need(nrow(rates) > 0, "No data available for geo comparison."))
-      dodge <- position_dodge(width = 0.7)
-      
-      bar_compare <- ggplot(
-        rates,
-        aes(
-          x = hai, y = perN_val, fill = sample,
-          text = paste0(
-            "Sample: ", sample,
-            "<br>HAI: ", hai,
-            "<br>", cmp_metric, " per ", comma(perN), ": ",
-            number(perN_val, accuracy = 0.1),
-            "<br>95% UI: [", number(perN_low, accuracy = 0.1), ", ",
-            number(perN_high, accuracy = 0.1), "]"
-          )
-        )
-      ) +
-        geom_col(position = dodge, width = 0.6) +
-        # 95% UI error bars 
+    # Geo comparison
+    if (identical(input$view, "compare")) {
+      rate_data <- cmp_rates()
+      chosen_metric <- req(input$cmp_metric)
+      chosen_perN   <- req(input$perN)
+      validate(need(nrow(rate_data) > 0, "No data available for geo comparison."))
+      pos_dodge <- position_dodge(width = 0.7)
+      tooltip_txt <- paste0(
+        "Sample: ", rate_data$sample,
+        "<br>HAI: ", rate_data$hai,
+        "<br>", chosen_metric, " per ", comma(chosen_perN), ": ", number(rate_data$perN_val, accuracy = 0.1),
+        "<br>95% UI: [", number(rate_data$perN_low, accuracy = 0.1), ", ",
+        number(rate_data$perN_high, accuracy = 0.1), "]"
+      )
+      compare_plot <- ggplot(rate_data, aes(x = hai, y = perN_val, fill = sample, text = tooltip_txt)) +
+        geom_col(position = pos_dodge, width = 0.6) +
         geom_errorbar(aes(ymin = perN_low, ymax = perN_high),
-                      position = dodge, width = 0.2, linewidth = 0.4) +
+                      position = pos_dodge, width = 0.2, linewidth = 0.4) +
         labs(
           x = "HAI type",
-          y = paste0(cmp_metric, " per ", comma(perN)),
-          title = paste0("Germany vs EU/EEA - ", cmp_metric, " per ",
-                         comma(perN))
+          y = paste0(chosen_metric, " per ", comma(chosen_perN)),
+          title = paste0("Germany vs EU/EEA — ", chosen_metric, " per ", comma(chosen_perN))
         ) +
         theme_minimal() +
         theme(legend.title = element_blank()) +
-        scale_fill_manual(values = c("German PPS" = "#a3a380",
-                                     "ECDC PPS (EU/EEA)" = "#bb8588"))
-      
-      return(ggplotly(bar_compare, tooltip = "text"))
+        scale_fill_manual(values = SAMPLE_COLORS)
+      return(ggplotly(compare_plot, tooltip = "text"))
     }
     
-    # ---- Bubble ----
-    df_base <- base_all_hai()
-    df <- dat_filtered()
-    validate(need(nrow(df) > 0, "Please select at least one HAI type in the sidebar."))
+    # Hide main plot when age view
+    if (identical(input$view, "age")) return(NULL)
     
-    if (input$view == "bubble") {
-      bubble_plot <- ggplot(df, aes(x = cases, y = deaths)) +
-        geom_point(
-          color = "#d8a48f",
-          shape = 16,
-          aes(size = dalys,
-              text = paste0(
-                "HAI: ", hai,
-                "<br>HAIs: ", comma(cases),
-                " [", comma(cases_low), ", ", comma(cases_high), "]",
-                "<br>Deaths: ", comma(deaths),
-                " [", comma(deaths_low), ", ", comma(deaths_high), "]",
-                "<br>DALYs: ", comma(dalys),
-                " [", comma(dalys_low), ", ", comma(dalys_high), "]"
-              )),
-          alpha = 0.65
-        ) +
-        geom_text(aes(label = hai), vjust = -0.8, size = 3) +
-        scale_size_area(limits = c(0, global_dalys_max()), max_size = 18, guide = "legend") +
-        scale_x_continuous(limits = c(0, global_xmax() * 1.15)) +
-        scale_y_continuous(limits = c(0, global_ymax() * 1.25)) +
-        labs(x = "HAIs (annual)", y = "Attributable deaths (annual)", size = "DALYs") +
-        theme_minimal()
-      
+    # Bubble chart
+    if (identical(input$view, "bubble")) {
+      bubble_df <- totals_selected()
+      validate(need(nrow(bubble_df) > 0, "No data to plot. Check your selections."))
+      max_dalys_for_size <- max(bubble_df$dalys, bubble_df$dalys_high, na.rm = TRUE)
+      bubble_tooltip <- paste0(
+        "Sample: ", bubble_df$sample,
+        "<br>HAI: ", bubble_df$hai,
+        "<br>HAIs: ", comma(bubble_df$cases),
+        ifelse(is.finite(bubble_df$cases_low),
+               paste0(" [", comma(bubble_df$cases_low), ", ", comma(bubble_df$cases_high), "]"), ""),
+        "<br>Deaths: ", comma(bubble_df$deaths),
+        ifelse(is.finite(bubble_df$deaths_low),
+               paste0(" [", comma(bubble_df$deaths_low), ", ", comma(bubble_df$deaths_high), "]"), ""),
+        "<br>DALYs: ", comma(bubble_df$dalys),
+        ifelse(is.finite(bubble_df$dalys_low),
+               paste0(" [", comma(bubble_df$dalys_low), ", ", comma(bubble_df$dalys_high), "]"), "")
+      )
+      bubble_plot <- ggplot(bubble_df, aes(x = cases, y = deaths)) +
+        geom_point(aes(size = dalys, color = sample, shape = sample, text = bubble_tooltip),
+                   alpha = 0.7) +
+        geom_text(aes(label = hai, color = sample), vjust = -0.8, size = 3, show.legend = FALSE) +
+        scale_color_manual(values = SAMPLE_COLORS) +
+        scale_shape_manual(values = c(16, 17)) +
+        scale_size_area(limits = c(0, max_dalys_for_size), max_size = 18, guide = "legend", name = "DALYs") +
+        scale_x_continuous(limits = c(0, 260000)) +
+        scale_y_continuous(limits = c(0, 5000)) +
+        labs(x = "HAIs (annual)", y = "Attributable deaths (annual)") +
+        theme_minimal() +
+        theme(legend.position = "none")
       return(ggplotly(bubble_plot, tooltip = "text"))
     }
     
-    # ---- HAI-level Bar  ----
-    metric <- req(input$metric)
-    metric_col <- METRICS[[metric]]        
-    low_col  <- paste0(metric_col, "_low") 
-    high_col <- paste0(metric_col, "_high")
-    
-    order <- HAI_LEVELS[HAI_LEVELS %in% df$hai]
-    df <- df %>% mutate(hai = factor(hai, levels = order))
-    
-    # Use the CI high bound to set a comfortable axis limit
-    y_max <- max(df[[metric_col]], df[[high_col]], na.rm = TRUE) * 1.10
-    
-    bar_plot <- ggplot(
-      df,
-      aes(
-        x = hai, y = .data[[metric_col]], fill = hai,
-        text = paste0(
-          "HAI: ", hai,
-          "<br>", metric, ": ", comma(.data[[metric_col]]),
-          "<br>95% UI: [", comma(.data[[low_col]]), ", ",
-          comma(.data[[high_col]]), "]"
+    # Grouped bar chart
+    if (identical(input$view, "bar")) {
+      bar_df <- totals_selected()
+      selected_metric <- req(input$metric)
+      metric_col_name <- METRICS[[selected_metric]]
+      low_col_name    <- paste0(metric_col_name, "_low")
+      high_col_name   <- paste0(metric_col_name, "_high")
+      bar_df <- bar_df %>%
+        mutate(
+          hai    = factor(hai, levels = HAI_LEVELS[HAI_LEVELS %in% levels(bar_df$hai)]),
+          sample = factor(sample, levels = SAMPLE_LEVELS)
         )
+      y_axis_limit <- max(bar_df[[metric_col_name]], bar_df[[high_col_name]], na.rm = TRUE) * 1.10
+      pos_dodge_bar <- position_dodge(width = 0.75)
+      bar_tooltip <- paste0(
+        "Sample: ", bar_df$sample,
+        "<br>HAI: ", bar_df$hai,
+        "<br>", selected_metric, ": ", comma(bar_df[[metric_col_name]]),
+        ifelse(is.finite(bar_df[[low_col_name]]),
+               paste0("<br>95% UI: [", comma(bar_df[[low_col_name]]), ", ",
+                      comma(bar_df[[high_col_name]]), "]"), "")
       )
-    ) +
-      geom_col(width = 0.7, show.legend = FALSE) +
-      # 95% UI error bars
-      geom_errorbar(
-        aes(ymin = .data[[low_col]], ymax = .data[[high_col]]),
-        width = 0.2, linewidth = 0.4
-      ) +
-      scale_fill_manual(values = HAI_COLORS[levels(df$hai)]) +
-      scale_y_continuous(limits = c(0, y_max)) +
-      coord_flip() +
-      labs(x = "HAI type", y = metric) +
-      theme_minimal()
-    
-    return(ggplotly(bar_plot, tooltip = "text") %>% layout(showlegend = FALSE))
+      bar_plot <- ggplot(bar_df, aes(x = hai, y = !!as.name(metric_col_name), fill = sample, text = bar_tooltip)) +
+        geom_col(width = 0.7, position = pos_dodge_bar) +
+        geom_errorbar(aes(ymin = !!as.name(low_col_name), ymax = !!as.name(high_col_name)),
+                      width = 0.2, linewidth = 0.4, position = pos_dodge_bar, na.rm = TRUE) +
+        scale_fill_manual(values = SAMPLE_COLORS, name = NULL) +
+        scale_y_continuous(limits = c(0, y_axis_limit)) +
+        coord_flip() +
+        labs(x = "HAI type", y = selected_metric) +
+        theme_minimal()
+      return(ggplotly(bar_plot, tooltip = "text"))
+    }
+    NULL
   })
   
-  # ---- Render text summary for Geo comparison ----
+  # Age pyramid (use helper from package via :::)
+  output$pyramid <- renderPlotly({
+    req(input$view == "age")
+    validate(need(has_cases_de || has_cases_eu,
+                  "Age view needs microdata (bhai_cases_de / bhai_cases_eu)."))
+    selected_geo <- req(input$pyr_geo)
+    raw_df_for_age <- if (selected_geo == "DE") {
+      validate(need(has_cases_de, "No microdata for German PPS."))
+      bhai_cases_de
+    } else {
+      validate(need(has_cases_eu, "No microdata for ECDC PPS (EU/EEA)."))
+      bhai_cases_eu
+    }
+    pyramid_ready <- BHAIBYE:::pyramid_df(raw_df_for_age) %>%
+      mutate(
+        value_signed = ifelse(sex == "Female", -value, value),
+        age_group    = forcats::fct_rev(age_group)
+      )
+    age_x_limit <- max(abs(pyramid_ready$value_signed), na.rm = TRUE) * 1.05
+    age_tip <- paste0(
+      "Sex: ", pyramid_ready$sex,
+      "<br>Age: ", pyramid_ready$age_group,
+      "<br>DALYs: ", comma(abs(pyramid_ready$value_signed))
+    )
+    age_plot <- ggplot(pyramid_ready, aes(x = age_group, y = value_signed, fill = sex, text = age_tip)) +
+      geom_col(width = 0.75) +
+      coord_flip() +
+      scale_y_continuous(limits = c(-age_x_limit, age_x_limit),
+                         labels = function(x) comma(abs(x))) +
+      scale_fill_manual(values = c("Female" = "#bb8588", "Male" = "#a3a380"), name = NULL) +
+      labs(x = "Age (years)", y = "DALYs (weighted totals)",
+           title = "Age-sex DALY pyramid (totals)") +
+      theme_minimal()
+    ggplotly(age_plot, tooltip = "text")
+  })
+  
+  # Compare text summary
   output$cmp_text <- renderUI({
     req(input$view == "compare")
-    rates <- cmp_rates()
-    perN <- req(input$perN)
-    metric <- req(input$cmp_metric)
-    
-    # wide table: one column for each sample
-    wide <- rates %>%
+    rate_view <- cmp_rates()
+    chosen_perN <- req(input$perN)
+    chosen_metric <- req(input$cmp_metric)
+    wide_tbl <- rate_view %>%
       select(hai, sample, perN_val) %>%
       pivot_wider(names_from = sample, values_from = perN_val) %>%
       mutate(
@@ -320,15 +386,13 @@ server <- function(input, output, session) {
         ),
         diff = abs(de - eu)
       )
-    
-    items <- lapply(seq_len(nrow(wide)), function(i) {
-      hai_i <- as.character(wide$hai[i])
-      de_i  <- wide$de[i]
-      eu_i  <- wide$eu[i]
-      win_i <- wide$winner[i]
-      dif_i <- wide$diff[i]
-      
-      tail_node <- if (is.na(win_i)) {
+    bullet_items <- lapply(seq_len(nrow(wide_tbl)), function(i) {
+      hai_i <- as.character(wide_tbl$hai[i])
+      de_i  <- wide_tbl$de[i]
+      eu_i  <- wide_tbl$eu[i]
+      win_i <- wide_tbl$winner[i]
+      dif_i <- wide_tbl$diff[i]
+      tail_note <- if (is.na(win_i)) {
         NULL
       } else if (win_i == "Tie") {
         " (tie)."
@@ -336,26 +400,19 @@ server <- function(input, output, session) {
         list(" (", tags$b(win_i), " higher by ",
              tags$b(number(dif_i, accuracy = 0.1)), ").")
       }
-      
       tags$li(
-        tags$b(hai_i), ": German PPS shows ",
-        tags$b(number(de_i, accuracy = 0.1)),
-        " per ", tags$b(comma(perN)),
-        " and ECDC PPS shows ",
-        tags$b(number(eu_i, accuracy = 0.1)),
-        " per ", tags$b(comma(perN)),
-        tail_node
+        tags$b(hai_i), ": German PPS ",
+        tags$b(number(de_i, accuracy = 0.1)), " / ",
+        "ECDC PPS ", tags$b(number(eu_i, accuracy = 0.1)),
+        " per ", tags$b(comma(chosen_perN)), tail_note
       )
     })
-    
     tags$div(
-      tags$p(
-        "Metric: ", tags$b(metric),
-        " · Scale: per ", tags$b(comma(perN))
-      ),
-      tags$ul(items)
+      tags$p("Metric: ", tags$b(chosen_metric), " · Scale: per ", tags$b(comma(chosen_perN))),
+      tags$ul(bullet_items)
     )
   })
 }
 
+# Run app 
 shinyApp(ui, server)
