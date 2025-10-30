@@ -119,18 +119,74 @@ ui <- tagList(
       tagList(
         tags$h4("Method workflow (BHAI)"),
         tags$ol(
-          tags$li("Estimate hospital prevalence from PPS."),
-          tags$li("Convert prevalence to incidence."),
-          tags$li("Extrapolate incidence to population."),
-          tags$li("Stratify by age/sex; compute YLL/YLD; sum to DALYs.")
+          tags$li(tags$b("Prevalence in hospital"), " from PPS."),
+          tags$li(
+            "Convert to ", tags$b("hospital incidence"),
+            " via a modified ", tags$b("Rhame-Sudderth"),
+            " formula using ", tags$b("length of infection (LOI)"), "."
+          ),
+          tags$li(
+            tags$b("Scale to population"),
+            " using national ", tags$b("hospital discharges"),
+            " and ", tags$b("population size"), "."
+          ),
+          tags$li(tags$b("Stratify by age/sex"), " using the PPS distribution."),
+          tags$li(
+            tags$b("Adjust for comorbidity"),
+            " (McCabe classes) and estimate ",
+            tags$b("YLL, YLD, and DALYs"), "."
+          )
         ),
         tags$hr(),
         tags$h4("Field meanings"),
         tags$ul(
-          tags$li(code("bhai_summary"), ": Germany totals with 95% UI."),
-          tags$li(code("bhai_rates"), ": rates per 100,000 (Germany & EU/EEA)."),
-          tags$li(code("bhai_cases_de"), " / ", code("bhai_cases_eu"),
-                  ": simulated microdata with weights for age/sex analyses.")
+          tags$li(
+            code("bhai_summary"), ": Germany totals with 95% uncertainty intervals (UI).",
+            tags$ul(
+              tags$li(code("geo"), " - geography (always ", code("Germany"), ")."),
+              tags$li(code("sample"), " - source/sample (", code("German PPS"), ")."),
+              tags$li(code("hai"), " - infection type: ", code("HAP, UTI, BSI, SSI, CDI"), "."),
+              tags$li(code("cases"), ", ", code("deaths"), ", ", code("dalys"),
+                      " - annual totals (counts; ", code("dalys"), " in years)."),
+              tags$li(code("cases_low/high"), ", ", code("deaths_low/high"), ", ", code("dalys_low/high"),
+                      " - 95% UI bounds for the totals."),
+              tags$li(code("yll"), ", ", code("yld"),
+                      " - components of ", code("dalys"), " (identity: ", code("DALY = YLL + YLD"), ")."),
+              tags$li(code("yll_low/high"), ", ", code("yld_low/high"),
+                      " - 95% UI bounds for YLL/YLD.")
+            )
+          ),
+          tags$li(
+            code("bhai_rates"), ": Rates per 100,000 population with 95% UI (Germany & EU/EEA).",
+            tags$ul(
+              tags$li(code("geo"), " - geography: ", code("Germany"), " or ", code("EU/EEA"), "."),
+              tags$li(code("sample"), " - ", code("German PPS"), " or ", code("ECDC PPS (EU/EEA)"), "."),
+              tags$li(code("hai"), " - infection type or ", code("All"), " (sum across types)."),
+              tags$li(code("metric"), " - outcome: ", code("HAIs"), ", ", code("Deaths"), ", ", code("DALYs"),
+                      "; for EU/EEA the dataset also includes derived ", code("YLL"), " and ", code("YLD"), "."),
+              tags$li(code("per100k"), " - point estimate of the rate per 100,000 people."),
+              tags$li(code("per100k_low/high"), " - 95% UI bounds for the rate."),
+              tags$li("Convert rate to an approximate count for population ", code("N"), ": ",
+                      code("count ≈ per100k / 1e5 * N"), ".")
+            )
+          ),
+          tags$li(
+            code("bhai_cases_de"), " / ", code("bhai_cases_eu"),
+            ": simulated person-level microdata for age-sex analyses (weights supplied).",
+            tags$ul(
+              tags$li(code("hai"), " - infection type (", code("HAP/UTI/BSI/SSI/CDI"), ")."),
+              tags$li(code("age_group"), " - ordered bands: ",
+                      "0-1, 2-4, 5-9, 10-14, 15-19, 20-24, 25-34, 35-44, 45-54, ",
+                      "55-64, 65-74, 75-79, 80-84, 85+."),
+              tags$li(code("sex"), " - ", code("Female"), " / ", code("Male"), "."),
+              tags$li(code("death"), " - indicator (", code("1"), " = died; ", code("0"), " = survived)."),
+              tags$li(code("yll"), ", ", code("yld"), ", ", code("daly"),
+                      " - per-case years (", code("daly = yll + yld"), ")."),
+              tags$li(code("weight"), " - population weight for each simulated record. ",
+                      "Summing ", code("weight"), " by ", code("hai"), " approximates total cases; ",
+                      "summing ", code("weight * daly"), " recovers DALYs totals.")
+            )
+          )
         ),
         tags$hr(),
         tags$h4("How to interpret"),
@@ -250,7 +306,7 @@ server <- function(input, output, session) {
         labs(
           x = "HAI type",
           y = paste0(chosen_metric, " per ", comma(chosen_perN)),
-          title = paste0("Germany vs EU/EEA — ", chosen_metric, " per ", comma(chosen_perN))
+          title = paste0("Germany vs EU/EEA - ", chosen_metric, " per ", comma(chosen_perN))
         ) +
         theme_minimal() +
         theme(legend.title = element_blank()) +
