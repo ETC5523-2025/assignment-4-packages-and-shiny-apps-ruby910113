@@ -15,12 +15,6 @@ data("bhai_rates",     package = "BHAIBYE")
 data("bhai_cases_de",  package = "BHAIBYE")
 data("bhai_cases_eu",  package = "BHAIBYE")
 
-# try() avoids crashing if microdata are missing
-invisible(suppressWarnings(try(utils::data("bhai_cases_de", package = "BHAIBYE"), silent = TRUE)))
-invisible(suppressWarnings(try(utils::data("bhai_cases_eu", package = "BHAIBYE"), silent = TRUE)))
-has_cases_de <- exists("bhai_cases_de", inherits = TRUE)
-has_cases_eu <- exists("bhai_cases_eu", inherits = TRUE)
-
 # ---- Constants ---------------------------------------------------------------
 HAI_LEVELS <- c("HAP","UTI","BSI","SSI","CDI")
 AGE_LEVELS <- c("0-1","2-4","5-9","10-14","15-19","20-24","25-34","35-44",
@@ -386,39 +380,64 @@ server <- function(input, output, session) {
     NULL
   })
   
-  # Age pyramid (use helper from package via :::)
+  # Age pyramid
+  # ---- Age pyramid (DALYs, by age & sex) ----
   output$pyramid <- renderPlotly({
     req(input$view == "age")
-    validate(need(has_cases_de || has_cases_eu,
-                  "Age view needs microdata (bhai_cases_de / bhai_cases_eu)."))
-    selected_geo <- req(input$pyr_geo)
-    raw_df_for_age <- if (selected_geo == "DE") {
-      validate(need(has_cases_de, "No microdata for German PPS."))
-      bhai_cases_de
-    } else {
-      validate(need(has_cases_eu, "No microdata for ECDC PPS (EU/EEA)."))
-      bhai_cases_eu
-    }
-    pyramid_ready <- BHAIBYE:::pyramid_df(raw_df_for_age) %>%
+    
+    # Pick dataset by radio; get0() returns NULL if not found (no errors)
+    df_age <- switch(req(input$pyr_geo),
+                     "DE" = get0("bhai_cases_de", ifnotfound = NULL, inherits = TRUE),
+                     "EU" = get0("bhai_cases_eu", ifnotfound = NULL, inherits = TRUE)
+    )
+    
+    # Validate dataset existence and non-empty
+    validate(need(
+      is.data.frame(df_age) && nrow(df_age) > 0,
+      "Age view needs microdata (bhai_cases_de / bhai_cases_eu)."
+    ))
+    
+    # Aggregate to pyramid totals
+    pyramid_ready <- BHAIBYE:::pyramid_df(df_age) |>
       mutate(
-        value_signed = ifelse(sex == "Female", -value, value),
-        age_group    = forcats::fct_rev(age_group)
+        # Negative on female side so bars mirror
+        value_signed = if_else(sex == "Female", -value, value),
+        # Oldest on top
+        age_group = forcats::fct_rev(age_group)
       )
-    age_x_limit <- max(abs(pyramid_ready$value_signed), na.rm = TRUE) * 1.05
-    age_tip <- paste0(
+    
+    # Symmetric y range
+    axis_max <- max(abs(pyramid_ready$value_signed), na.rm = TRUE) * 1.05
+    
+    # Tooltip text
+    tooltip_txt <- paste0(
       "Sex: ", pyramid_ready$sex,
       "<br>Age: ", pyramid_ready$age_group,
       "<br>DALYs: ", comma(abs(pyramid_ready$value_signed))
     )
-    age_plot <- ggplot(pyramid_ready, aes(x = age_group, y = value_signed, fill = sex, text = age_tip)) +
+    
+    # Build plot
+    age_plot <- ggplot(
+      pyramid_ready,
+      aes(x = age_group, y = value_signed, fill = sex, text = tooltip_txt)
+    ) +
       geom_col(width = 0.75) +
       coord_flip() +
-      scale_y_continuous(limits = c(-age_x_limit, age_x_limit),
-                         labels = function(x) comma(abs(x))) +
-      scale_fill_manual(values = c("Female" = "#bb8588", "Male" = "#a3a380"), name = NULL) +
-      labs(x = "Age (years)", y = "DALYs (weighted totals)",
-           title = "Age-sex DALY pyramid (totals)") +
+      scale_y_continuous(
+        limits = c(-axis_max, axis_max),
+        labels = function(x) comma(abs(x))
+      ) +
+      scale_fill_manual(
+        values = c("Female" = "#bb8588", "Male" = "#a3a380"),
+        name = NULL
+      ) +
+      labs(
+        x = "Age (years)", y = "DALYs (weighted totals)",
+        title = "Age–sex DALY pyramid (totals)"
+      ) +
       theme_minimal()
+    
+    # Interactivity
     ggplotly(age_plot, tooltip = "text")
   })
   
