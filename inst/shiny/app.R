@@ -47,7 +47,7 @@ ui <- tagList(
             tags$p(
               "This app accompanies my article and package website. ",
               "Use it to explore Germany vs EU/EEA HAI burden (totals, rates with 95% UI) ",
-              "and an age–sex DALY pyramid built from simulated microdata."
+              "and an age-sex DALY pyramid built from simulated microdata."
             ),
             tags$div(
               style="margin-top:14px;",
@@ -472,11 +472,9 @@ server <- function(input, output, session) {
       ) +
       labs(
         x = "Age (years)", y = "DALYs (weighted totals)",
-        title = "Age–sex DALY pyramid (totals)"
+        title = "Age-sex DALY pyramid (totals)"
       ) +
       theme_minimal()
-    
-    # Interactivity
     ggplotly(age_plot, tooltip = "text")
   })
   
@@ -528,5 +526,4 @@ server <- function(input, output, session) {
   })
 }
 
-# Run app 
 shinyApp(ui, server)
