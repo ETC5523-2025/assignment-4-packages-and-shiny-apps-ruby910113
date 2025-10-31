@@ -30,87 +30,46 @@ ui <- tagList(
     theme = bs_theme(version = 5, bootswatch = "flatly", primary = "#283618"),
     
     tabPanel(
-      "Explore",
-      sidebarLayout(
-        sidebarPanel(
-          width = 3,
-          selectInput(
-            "view", "View:",
-            choices = c("Bubble (per HAI)" = "bubble",
-                        "Bar (per HAI)"    = "bar",
-                        "Age pyramid (DALYs, by age & sex)" = "age",
-                        "Geo comparison (per N)" = "compare"),
-            selected = "bubble"
-          ),
-          conditionalPanel(
-            condition = "input.view == 'bubble' || input.view == 'bar'",
-            checkboxGroupInput(
-              "hai", "HAI types:",
-              choices = HAI_LEVELS,
-              selected = HAI_LEVELS
-            )
-          ),
-          conditionalPanel(
-            condition = "input.view == 'bubble' || input.view == 'bar'",
-            checkboxGroupInput(
-              "samples", "Sample(s):",
-              choices = SAMPLE_LEVELS,
-              selected = "German PPS"
-            )
-          ),
-          conditionalPanel(
-            condition = "input.view == 'bar'",
-            radioButtons("metric", "Metric:",
-                         choices = names(METRICS),
-                         selected = "DALYs")
-          ),
-          conditionalPanel(
-            condition = "input.view == 'age'",
-            radioButtons("pyr_geo", "Sample:",
-                         choices = c("German PPS" = "DE", "ECDC PPS (EU/EEA)" = "EU"),
-                         selected = "DE")
-          ),
-          conditionalPanel(
-            condition = "input.view == 'compare'",
-            radioButtons("cmp_metric", "Metric (per N):",
-                         choices = c("HAIs", "Deaths", "DALYs"),
-                         selected = "Deaths")
-          ),
-          conditionalPanel(
-            condition = "input.view == 'compare'",
-            sliderInput("perN", "Scale (per N population):",
-                        min = 1000, max = 100000, value = 100000, step = 1000)
-          )
-        ),
-        mainPanel(
-          tags$h4("German / ECDC - HAI"),
-          conditionalPanel(
-            condition = "input.view == 'bubble' || input.view == 'bar' || input.view == 'compare'",
-            div(
-              style = "border:1px solid #cfcfcf; border-radius:8px; padding:8px; background:#fff;",
-              plotlyOutput("plot", height = 520)
-            )
-          ),
-          conditionalPanel(
-            condition = "input.view == 'age'",
-            div(
-              style = "border:1px solid #cfcfcf; border-radius:8px; padding:8px; background:#fff;",
-              plotlyOutput("pyramid", height = 520)
-            )
-          ),
-          conditionalPanel(
-            condition = "input.view == 'compare'",
-            tags$hr(),
-            tags$h5(tags$b("Geo comparison - text summary")),
-            htmlOutput("cmp_text")
-          )
-        )
-      )
-    ),
-    
-    tabPanel(
       "About",
       tagList(
+        tags$div(
+          style = "display:flex; justify-content:center; align-items:center; margin-top:12px;",
+          tags$div(
+            style = "
+          max-width:900px; width:100%;
+          background:#fff; border:2px solid #283618; border-radius:12px;
+          padding:28px 28px 20px 28px;
+          box-shadow:0 6px 16px rgba(0,0,0,0.06);
+          text-align:center;
+        ",
+            tags$h2("Welcome to BHAIBYE", 
+                    style="margin-top:2px; margin-bottom:14px; color:#283618; font-weight:700;"),
+            tags$p(
+              "This app accompanies my article and package website. ",
+              "Use it to explore Germany vs EU/EEA HAI burden (totals, rates with 95% UI) ",
+              "and an age–sex DALY pyramid built from simulated microdata."
+            ),
+            tags$div(
+              style="margin-top:14px;",
+              tags$a(
+                href = "https://etc5523-2025.github.io/assignment-4-packages-and-shiny-apps-ruby910113",
+                target = "_blank",
+                class = "btn btn-outline-secondary",
+                style = "border-color:#283618; color:#283618;",
+                "Open pkgdown site"
+              ),
+              tags$a(
+                href = "https://etc5523-2025.github.io/assignment-3-creating-a-blog-ruby910113/posts/HAI-German",
+                target = "_blank",
+                class = "btn btn-outline-secondary",
+                style = "border-color:#283618; color:#283618;",
+                "Read the blog article"
+              )
+            )
+          )
+        ),
+        tags$hr(style="margin:24px 0;"),
+        
         tags$h4("Method workflow (BHAI)"),
         tags$ol(
           tags$li(tags$b("Prevalence in hospital"), " from PPS."),
@@ -237,6 +196,86 @@ ui <- tagList(
         )
       )
     ),
+      
+    tabPanel(
+      "Explore",
+      sidebarLayout(
+        sidebarPanel(
+          width = 3,
+          selectInput(
+            "view", "View:",
+            choices = c("Bubble (per HAI)" = "bubble",
+                        "Bar (per HAI)"    = "bar",
+                        "Age pyramid (DALYs, by age & sex)" = "age",
+                        "Geo comparison (per N)" = "compare"),
+            selected = "bubble"
+          ),
+          conditionalPanel(
+            condition = "input.view == 'bubble' || input.view == 'bar'",
+            checkboxGroupInput(
+              "hai", "HAI types:",
+              choices = HAI_LEVELS,
+              selected = HAI_LEVELS
+            )
+          ),
+          conditionalPanel(
+            condition = "input.view == 'bubble' || input.view == 'bar'",
+            checkboxGroupInput(
+              "samples", "Sample(s):",
+              choices = SAMPLE_LEVELS,
+              selected = "German PPS"
+            )
+          ),
+          conditionalPanel(
+            condition = "input.view == 'bar'",
+            radioButtons("metric", "Metric:",
+                         choices = names(METRICS),
+                         selected = "DALYs")
+          ),
+          conditionalPanel(
+            condition = "input.view == 'age'",
+            radioButtons("pyr_geo", "Sample:",
+                         choices = c("German PPS" = "DE", "ECDC PPS (EU/EEA)" = "EU"),
+                         selected = "DE")
+          ),
+          conditionalPanel(
+            condition = "input.view == 'compare'",
+            radioButtons("cmp_metric", "Metric (per N):",
+                         choices = c("HAIs", "Deaths", "DALYs"),
+                         selected = "Deaths")
+          ),
+          conditionalPanel(
+            condition = "input.view == 'compare'",
+            sliderInput("perN", "Scale (per N population):",
+                        min = 1000, max = 100000, value = 100000, step = 1000)
+          )
+        ),
+        mainPanel(
+          tags$h4("German / ECDC - HAI"),
+          conditionalPanel(
+            condition = "input.view == 'bubble' || input.view == 'bar' || input.view == 'compare'",
+            div(
+              style = "border:1px solid #cfcfcf; border-radius:8px; padding:8px; background:#fff;",
+              plotlyOutput("plot", height = 520)
+            )
+          ),
+          conditionalPanel(
+            condition = "input.view == 'age'",
+            div(
+              style = "border:1px solid #cfcfcf; border-radius:8px; padding:8px; background:#fff;",
+              plotlyOutput("pyramid", height = 520)
+            )
+          ),
+          conditionalPanel(
+            condition = "input.view == 'compare'",
+            tags$hr(),
+            tags$h5(tags$b("Geo comparison - text summary")),
+            htmlOutput("cmp_text")
+          )
+        )
+      )
+    ),
+    
     tags$head(tags$link(rel="stylesheet", type="text/css", href="app.css"))
   )
 )
