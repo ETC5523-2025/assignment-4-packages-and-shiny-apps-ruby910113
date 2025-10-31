@@ -9,11 +9,18 @@ Authors@R: c(
       role = c("aut", "cre")
     )
   )
-Description: A small, teaching-focused package for exploring the burden of
-    healthcare-associated infections (HAIs). It ships two compact datasets
-    (annual totals and rates per 100,000) and a Shiny app to visualise HAI
-    cases, deaths and DALYs, and to compare Germany (German PPS) with the EU/EEA
-    (ECDC PPS). Launch the interactive explorer with 'launch_app()'.
+Description: Tools and datasets for teaching the burden of healthcare-associated
+    infections (HAIs). Provides compact datasets for Germany and the EU/EEA:
+    'bhai_summary' (annual totals with 95% uncertainty intervals) and
+    'bhai_rates' (rates per 100,000 by infection type and outcome). Includes
+    simulated person-level microdata ('bhai_cases_de', 'bhai_cases_eu') for
+    age-sex analyses. Ships an interactive Shiny explorer launched via
+    'launch_app()' with bubble, bar, age-pyramid, and per-capita comparison
+    views. Helper functions support simple back-calculation and summaries
+    ('implied_pop_de()', 'pyramid_df()', 'totals_for_sample()'). Methods
+    reflect the BHAI workflow (prevalence-to-incidence conversion, scaling to
+    population, and 'DALY = YLL + YLD' decomposition). Intended for coursework
+    and demonstration.
 License: MIT + file LICENSE
 URL: https://ETC5523-2025.github.io/assignment-4-packages-and-shiny-apps-ruby910113,
     https://github.com/ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113
@@ -28,8 +35,11 @@ Imports:
     ggplot2,
     dplyr,
     tidyr,
+    tibble,
     bslib,
-    scales
+    scales,
+    forcats,
+    utils
 Suggests:
     knitr,
     rmarkdown

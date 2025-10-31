@@ -3,7 +3,9 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   BHAIBYE: BHAIBYE.html
-last_built: 2025-10-28T02:47Z
+  bhaibye_functions: bhaibye_functions.html
+  data-dictionary: data-dictionary.html
+last_built: 2025-10-31T03:54Z
 urls:
   reference: https://ETC5523-2025.github.io/assignment-4-packages-and-shiny-apps-ruby910113/reference
   article: https://ETC5523-2025.github.io/assignment-4-packages-and-shiny-apps-ruby910113/articles

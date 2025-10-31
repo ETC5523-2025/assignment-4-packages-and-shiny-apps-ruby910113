@@ -1,0 +1,239 @@
+---
+title: "Data Dictionary"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{data-dictionary}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE
+)
+```
+
+```{r setup}
+#| echo: false
+
+library(BHAIBYE)
+library(dplyr)
+library(tibble)
+library(knitr)
+```
+
+## Overview
+
+**This page describes the two datasets shipped with BHAIBYE and used by the app:**
+
+`bhai_summary`: Germany annual totals with 95% uncertainty intervals (UI)
+
+`bhai_rates`: per-100,000 rates (Germany & EU/EEA) with 95% UI
+
+`bhai_cases_de`: simulated person-level microdata (Germany, German PPS)
+
+`bhai_cases_eu`: simulated person-level microdata (EU/EEA, ECDC PPS)
+
+**See also**:
+
+- Getting started → [Getting started with BHAIBYE](BHAIBYE.html)
+
+- Functions → [Functions in BHAIBYE](bhaibye_functions.html)
+
+## Datasets
+
+### bhai_summary
+
+Germany annual totals for each infection type, including 95% uncertainty intervals and the DALY components.
+
+**Variables:**
+
+```{r}
+#| echo: false
+
+kable(
+  as.data.frame(
+    tribble(
+      ~variable, ~units, ~description,
+      "geo",         "-",    "Geography (always 'Germany').",
+      "sample",      "-",    "Source/sample (always 'German PPS').",
+      "hai",         "-",    "Infection type: HAP, UTI, BSI, SSI, CDI.",
+      "cases",       "count","Estimated annual HAIs (point).",
+      "cases_low",   "count","Lower 95% UI for cases.",
+      "cases_high",  "count","Upper 95% UI for cases.",
+      "deaths",      "count","Estimated annual attributable deaths (point).",
+      "deaths_low",  "count","Lower 95% UI for deaths.",
+      "deaths_high", "count","Upper 95% UI for deaths.",
+      "dalys",       "years","Disability-Adjusted Life Years (point).",
+      "dalys_low",   "years","Lower 95% UI for DALYs.",
+      "dalys_high",  "years","Upper 95% UI for DALYs.",
+      "yll",         "years","Years of Life Lost (component of DALY).",
+      "yll_low",     "years","Lower 95% UI for YLL.",
+      "yll_high",    "years","Upper 95% UI for YLL.",
+      "yld",         "years","Years Lived with Disability (component of DALY).",
+      "yld_low",     "years","Lower 95% UI for YLD.",
+      "yld_high",    "years","Upper 95% UI for YLD."
+    )
+  ),
+  col.names = c("Variable", "Units", "Description"),
+  align = c("l","l","l"),
+  caption = "Field dictionary for BHAI summary dataset"
+)
+```
+
+**Quick peek:**
+
+```{r}
+head(bhai_summary)
+```
+
+**Notes:**
+
+- Totals are annual counts/years.
+
+- UI bounds follow the original study’s uncertainty (stored here as simple low/high columns).
+
+- Intended uses: building per-type bar charts, bubble plots (Cases vs Deaths with DALY as size), and validating age-sex totals.
+
+### bhai_rates
+
+Per-100,000 rates for Germany ("German PPS") and EU/EEA ("ECDC PPS (EU/EEA)"), with 95% UI.
+Rows are long-format by metric.
+
+**Variables:**
+
+```{r}
+#| echo: false
+
+kable(
+  as.data.frame(
+    tribble(
+      ~variable,     ~units,      ~description,
+      "geo",         "-",         "Geography: 'Germany' or 'EU/EEA'.",
+      "sample",      "-",         "Source/sample: 'German PPS' or 'ECDC PPS (EU/EEA)'.",
+      "hai",         "-",         "Infection type or 'All' (sum across types).",
+      "metric",      "-",         "Outcome: HAIs, Deaths, DALYs (some builds include derived YLL/YLD for EU/EEA).",
+      "per100k",     "per 100k",  "Point estimate of the rate.",
+      "per100k_low", "per 100k",  "Lower 95% UI for the rate.",
+      "per100k_high","per 100k",  "Upper 95% UI for the rate."
+    )
+  ),
+  col.names = c("Variable", "Units", "Description"),
+  align = c("l", "l", "l"),
+  caption = "Field dictionary for BHAI rates dataset"
+)
+```
+
+**Quick peek:**
+
+```{r}
+head(bhai_rates)
+```
+
+**Turn a rate into an approximate count:**
+
+$$
+{\text{pop} \approx \frac{10^{5}\,\text{total HAIs}}{\text{per100k}}}
+$$
+
+The app uses a helper to infer a Germany-sized population from totals and the "All" HAIs rate; see Functions → [Functions in BHAIBYE](bhaibye_functions.html)
+
+**Notes:**
+
+- Rates are comparable across geographies and can be rescaled to per-N displays.
+
+- "All" is provided to summarise across infection types; for Germany it should be close to the sum of type-specific rates (minor rounding differences possible).
+
+- Intended uses: Germany vs EU/EEA comparison plots, per-N scaling, uncertainty banding.
+
+### bhai_cases_de
+
+Simulated person-level microdata (Germany, German PPS) for age/sex analyses. Each row is a simulated case with a population weight allowing you to re-aggregate to totals.
+
+**Variables:**
+
+```{r}
+#| echo: false
+
+kable(
+  as.data.frame(
+    tribble(
+      ~variable,  ~units, ~description,
+      "hai",      "-",    "Infection type: HAP, UTI, BSI, SSI, CDI.",
+      "age_group","-",    "Age band: 0-1, 2-4, 5-9, …, 85+.",
+      "sex",      "-",    "Female / Male.",
+      "death",    "0/1",  "Outcome indicator (1 = died; 0 = survived).",
+      "yll",      "years","Years of Life Lost for the record.",
+      "yld",      "years","Years Lived with Disability for the record.",
+      "daly",     "years","DALY for the record (daly = yll + yld).",
+      "weight",   "-",    "Population weight for this simulated case."
+    )
+  ),
+  col.names = c("Variable", "Units", "Description"),
+  align = c("l", "l", "l"),
+  caption = "Field dictionary for simulated microdata records"
+)
+```
+
+**Quick peek:**
+
+```{r}
+head(bhai_cases_de)
+```
+
+**Re-aggregate example (weighted):**
+
+```{r}
+de_totals_from_micro <- bhai_cases_de %>%
+  group_by(hai) %>%
+  summarise(
+    cases = sum(weight),
+    deaths = sum(weight * death),
+    dalys = sum(weight * daly),
+    .groups = "drop"
+    ) %>%
+  arrange(hai)
+
+de_totals_from_micro
+```
+
+**Notes:**
+
+- Weighted sums approximate published totals; small Monte-Carlo differences are expected.
+
+- Good for age-sex pyramids and subgroup summaries.
+
+### `bhai_cases_eu`
+
+Simulated person-level microdata (EU/EEA, ECDC PPS) with the same structure as bhai_cases_de.
+
+**Variables:**(identical to bhai_cases_de)
+
+**Quick peek:**
+
+```{r}
+head(bhai_cases_eu)
+```
+
+**Re-aggregate example (weighted):**
+
+```{r}
+eu_totals_from_micro <- bhai_cases_eu %>%
+  group_by(hai) %>%
+  summarise(
+    cases = sum(weight),
+    deaths = sum(weight * death),
+    dalys = sum(weight * daly),
+    .groups = "drop"
+    ) %>%
+  arrange(hai)
+
+eu_totals_from_micro
+```
+
+**Notes:**
+
+- Designed for comparisons with Germany at similar scale; weights reflect the EU/EEA scenario used in the app.
+
+- You can rescale or stratify further if needed.

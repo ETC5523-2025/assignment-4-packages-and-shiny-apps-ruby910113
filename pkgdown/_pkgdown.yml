@@ -29,7 +29,13 @@ navbar:
       href: reference/index.html
     examples:
       text: "Examples"
-      href: articles/BHAIBYE.html  
+      menu:
+        - text: "Getting started with BHAIBYE"
+          href: articles/BHAIBYE.html
+        - text: "Functions in BHAIBYE"
+          href: articles/bhaibye_functions.html
+        - text: "Data dictionary"
+          href: articles/data-dictionary.html
     github:
       icon: fab fa-github
       href: https://github.com/ruby910113
@@ -43,9 +49,12 @@ reference:
     contents:
       - bhai_summary
       - bhai_rates
+      - bhai_cases_de
+      - bhai_cases_eu
 
 articles:
   - title: "Examples"
     contents:
-      - BHAIBYE
-      
+      - BHAIBYE        
+      - bhaibye_functions  
+      - data-dictionary 

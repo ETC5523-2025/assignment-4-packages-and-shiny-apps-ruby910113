@@ -1,0 +1,121 @@
+---
+title: "Functions in BHAIBYE"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Functions in BHAIBYE}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE
+)
+```
+
+```{r setup}
+#| echo: false
+
+library(BHAIBYE)
+library(dplyr)
+library(tibble)
+library(scales)
+library(knitr)
+```
+
+## Overview
+
+**This article shows how to use the helper functions that power the Shiny app.**
+
+### implied_pop_de
+
+**What it does:**
+
+Back-calculates the implied German population from:
+
+$$
+{\text{pop} \approx \frac{10^{5}\,\text{total HAIs}}{\text{per100k}}}
+$$
+
+**When to use:**
+
+Whenever you need to convert EU/EEA per-100k rates into approximate counts on a Germany-scaled population for comparisons.
+
+> Check out the [**Data dictionary**](data-dictionary.html) → for full column definitions used by these functions.
+
+**Value:**
+
+A single numeric (population size)
+
+**View:**
+
+```{r}
+BHAIBYE:::implied_pop_de()
+```
+
+### totals_for_sample
+
+**What it does:**
+
+Builds a totals table (HAIs / Deaths / DALYs) with 95% UI for a chosen sample:
+
+`German PPS` → uses the published Germany totals
+
+`ECDC PPS (EU/EEA)` → converts EU/EEA per-100k rates to totals using implied_pop_de().
+
+**View:**
+
+- Germany totals
+
+```{r}
+BHAIBYE:::totals_for_sample("German PPS") %>%
+  arrange(hai) %>%
+  kable()
+```
+
+- EU/EEA totals converted from rates (scaled to implied German population)
+
+```{r}
+BHAIBYE:::totals_for_sample("ECDC PPS (EU/EEA)") %>% 
+  arrange(hai) %>%
+  kable()
+```
+
+### pyramid_df
+
+**What it does:**
+
+Aggregates simulated microdata to an age–sex table of **weighted DALYs** for plotting a pyramid.
+
+**Inputs:**
+
+A data frame with age_group, sex, weight, and daly.
+
+**Value:**
+
+A tibble with columns age_group, sex, value (DALYs).
+
+**Minimal example:**
+
+```{r}
+sample <- tibble(
+  age_group = c("0-1","0-1","2-4","2-4","5-9","5-9","0-1","2-4"),
+  sex = c("Female","Male","Female","Male","Female","Male","Female","Male"),
+  weight = c(120, 110, 95, 100, 80, 90, 130, 105),
+  daly = c(0.3, 0.2, 0.15, 0.18, 0.07, 0.09, 0.25, 0.20)
+)
+```
+
+**Input (record-level):**
+
+```{r}
+kable(sample)
+```
+
+**Aggregated output:**
+
+```{r}
+BHAIBYE:::pyramid_df(sample) %>%
+  kable
+```
