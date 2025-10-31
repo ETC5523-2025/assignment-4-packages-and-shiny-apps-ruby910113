@@ -18,6 +18,8 @@ workflow (Burden of Healthcare-Associated Infections) and let you:
 
 - compare Germany vs EU/EEA rates per N people,
 
+- visualise DALYs by age and sex with an age pyramid,
+
 - view 95% uncertainty intervals (UI) for cases, deaths and DALYs.
 
 The package is intentionally lightweight: it’s meant for coursework,
@@ -37,14 +39,17 @@ pak::pak("ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113")
 
 **Datasets**
 
-This package includes two small data frames:
+This package includes two datasets shipped with BHAIBYE and used by the
+app:
 
-- `bhai_summary` - annual totals for Germany (German PPS) by HAI type,
-  with point estimates and 95% UI.
+`bhai_summary`: Germany annual totals with 95% uncertainty intervals
+(UI)
 
-- `bhai_rates` - rates per 100,000 population for Germany (German PPS)
-  and EU/EEA (ECDC PPS), by HAI type and metric (HAIs, Deaths, DALYs),
-  with 95% UI.
+`bhai_rates`: per-100,000 rates (Germany & EU/EEA) with 95% UI
+
+`bhai_cases_de`: simulated person-level microdata (Germany, German PPS)
+
+`bhai_cases_eu`: simulated person-level microdata (EU/EEA, ECDC PPS)
 
 Both datasets contain the HAI types: `HAP`, `UTI`, `BSI`, `SSI`, `CDI`.
 
@@ -53,14 +58,17 @@ Both datasets contain the HAI types: `HAP`, `UTI`, `BSI`, `SSI`, `CDI`.
 The package bundles a Shiny app (under inst/shiny/) to interactively
 explore the data. It provides:
 
-- Bubble plot (per HAI): cases vs deaths, bubble size = DALYs (with 95%
-  UI in tooltips)
+- **Bubble plot (per HAI)**: cases vs deaths, bubble size = DALYs (with
+  95% UI in tooltips)
 
-- Bar plot (per HAI): choose metric (HAIs / Deaths / DALYs), with 95% UI
-  error bars
+- **Bar plot (per HAI)**: choose metric (HAIs / Deaths / DALYs), with
+  95% UI error bars
 
-- Geo comparison: Germany vs EU/EEA per-N rates (slider to change N),
-  with 95% UI
+- **Geo comparison**: Germany vs EU/EEA per-N rates (slider to change
+  N), with 95% UI
+
+- **Age pyramid**: visualises weighted DALYs by age and sex (from
+  simulated microdata)
 
 Launch it with:
 

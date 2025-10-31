@@ -10,7 +10,8 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with BHAIBYE">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Getting started with BHAIBYE">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -121,8 +122,10 @@ totals.</p></li>
 microdata (EU/EEA)</strong> with the same schema as
 <code>bhai_cases_de</code>.</p></li>
 </ul>
-<p>See the full schema in the <a href="data-dictionary.html"><strong>Data dictionary</strong></a> And see
-… in the <a href="bhaibye_functions.html"><strong>Functions in
+<p>See the full schema in the <a href="data-dictionary.html"><strong>Data dictionary</strong></a> and see
+worked examples of <code>implied_pop_de()</code>,
+<code>totals_for_sample()</code>, and <code>pyramid_df()</code> in the
+<a href="bhaibye_functions.html"><strong>Functions in
 BHAIBYE</strong></a></p>
 </div>
 <div class="section level2">
@@ -297,6 +300,13 @@ microdata).
 </h2>
 <p>This package was produced in the context of an academic
 assignment.</p>
+<p>All datasets in this package are simulated by me for teaching and
+demonstration purposes. The person-level microdata (bhai_cases_de,
+bhai_cases_eu) are synthetic draws calibrated to approximate published
+aggregates; the totals and rates (bhai_summary, bhai_rates) are compact
+representations derived for this package. <strong>They are not official
+statistics, may differ from the source study, and should not be used for
+clinical or policy decisions</strong>.</p>
 <p>Package scaffolding and documentation were made much easier thanks to
 the R packaging ecosystem - particularly <strong>usethis</strong>,
 <strong>devtools</strong>, and <strong>roxygen2</strong>.<br>
