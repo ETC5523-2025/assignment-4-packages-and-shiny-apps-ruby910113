@@ -38,19 +38,3 @@ h1, h2, h3, h4 {
   font-family: "Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
   font-weight: 600;
 }
-
-/* Links */
-a { color: #283618; }
-a:hover { color: #1e2a12; }
-
-/* Images */
-img {
-  border: 4px solid #283618;
-  border-radius: 6px;
-}
-
-/* Tables */
-.table {
-  background-color: #fff;
-  border-color: rgba(0,0,0,.075);
-}
