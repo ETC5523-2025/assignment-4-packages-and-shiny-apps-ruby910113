@@ -117,5 +117,5 @@ kable(sample)
 
 ```{r}
 BHAIBYE:::pyramid_df(sample) %>%
-  kable
+  kable()
 ```

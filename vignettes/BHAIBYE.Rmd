@@ -233,8 +233,9 @@ This package was produced in the context of an academic assignment.
 
 All datasets in this package are simulated by me for teaching and demonstration purposes. The person-level microdata (bhai_cases_de, bhai_cases_eu) are synthetic draws calibrated to approximate published aggregates; the totals and rates (bhai_summary, bhai_rates) are compact representations derived for this package. **They are not official statistics, may differ from the source study, and should not be used for clinical or policy decisions**.
 
-Package scaffolding and documentation were made much easier thanks to the R packaging ecosystem - particularly **usethis**, **devtools**, and **roxygen2**.  
-Interactive exploration is built with **shiny**, **plotly**, and **ggplot2**; data wrangling and utilities rely on **dplyr**, **tidyr**, and **scales**; theming uses **bslib**.
+Package scaffolding and documentation were made much easier thanks to the R packaging ecosystem, particularly `usethis`, `devtools`, `roxygen2`, `pkgdown`, `knitr`, and `rmarkdown`.
+Interactive exploration is built with `shiny`, `plotly`, and `ggplot2`; data wrangling and utilities rely on `dplyr`, `tidyr`, `tibble`, and `scales`; theming uses `bslib`.
+Simulation helpers use functions from base R’s `stats` package (e.g., lognormal and gamma draws).
 
 Concepts, data structure, and interpretation follow the BHAI approach described by Zacher et al. (2019) in *Eurosurveillance*:  
 <https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2019.24.46.1900135#html_fulltext>
