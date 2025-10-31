@@ -10,7 +10,8 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with BHAIBYE">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Getting started with BHAIBYE">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -30,7 +31,14 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item"><a class="nav-link" href="../articles/BHAIBYE.html">Examples</a></li>
+<li class="active nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-examples" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Examples</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-examples">
+<li><a class="dropdown-item" href="../articles/BHAIBYE.html">Getting started with BHAIBYE</a></li>
+    <li><a class="dropdown-item" href="../articles/bhaibye_functions.html">Functions in BHAIBYE</a></li>
+    <li><a class="dropdown-item" href="../articles/data-dictionary.html">Data dictionary</a></li>
+  </ul>
+</li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/ruby910113" aria-label="GitHub repository"><span class="fa fab fa-github"></span></a></li>
@@ -68,18 +76,24 @@ Wu</h4>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>BHAIBYE is a small teaching package with an interactive Shiny app and
-two tidy datasets to explore the burden of healthcare-associated
-infections (HAIs) in Germany and the EU/EEA. You can:</p>
+<p><strong>BHAIBYE</strong> is a teaching-focused R package with an
+<strong>interactive Shiny app</strong> for visualising the burden of
+healthcare-associated infections (HAIs), and <strong>four tidy
+datasets</strong> for Germany and the EU/EEA.</p>
+<p><strong>You can:</strong></p>
 <ul>
 <li><p>browse per-HAI totals (bubble / bar),</p></li>
 <li><p>compare Germany vs EU/EEA at rates per N people (with a
 slider),</p></li>
-<li><p>view 95% uncertainty intervals (UI) everywhere they
-matter.</p></li>
+<li><p>view 95% uncertainty intervals (UI) where relevant.</p></li>
 </ul>
-<p>This vignette shows how to load the data and how to use the app
-effectively.</p>
+<blockquote>
+<p><strong>Provenance &amp; disclaimer</strong><br>
+All datasets in BHAIBYE are simulated for teaching. They are constructed
+to resemble aggregate patterns reported in the literature, but are not
+original survey microdata and must not be used for real-world inference
+or policy analysis.</p>
+</blockquote>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -94,29 +108,25 @@ effectively.</p>
 <div class="section level2">
 <h2 id="what-data-are-included">What data are included?<a class="anchor" aria-label="anchor" href="#what-data-are-included"></a>
 </h2>
-<p>Two compact data frames ship with the package:</p>
+<p>BHAIBYE ships four compact datasets:</p>
 <ul>
-<li><p><code>bhai_summary</code> - annual totals for Germany (German
-PPS) by HAI type with point estimates and 95% UI.</p></li>
-<li><p><code>bhai_rates</code> - rates per 100,000 for Germany (German
-PPS) and EU/EEA (ECDC PPS), by HAI type and metric (HAIs, Deaths,
-DALYs), with 95% UI.</p></li>
+<li><p><code>bhai_summary</code> - <strong>Germany totals</strong> by
+HAI type (point + 95% UI; DALY components YLL/YLD).</p></li>
+<li><p><code>bhai_rates</code> - <strong>Rates per 100,000</strong> for
+Germany (German PPS) and EU/EEA (ECDC PPS), long by metric (HAIs,
+Deaths, DALYs) with 95% UI.</p></li>
+<li><p><code>bhai_cases_de</code> - <strong>Simulated person-level
+microdata (Germany)</strong> with weights to re-aggregate to
+totals.</p></li>
+<li><p><code>bhai_cases_eu</code> - <strong>Simulated person-level
+microdata (EU/EEA)</strong> with the same schema as
+<code>bhai_cases_de</code>.</p></li>
 </ul>
-<div class="section level3">
-<h3 id="column-guide">Column guide<a class="anchor" aria-label="anchor" href="#column-guide"></a>
-</h3>
-<ul>
-<li><p><code>geo</code>, <code>sample</code>, <code>hai</code> -
-geography, survey label, HAI type</p></li>
-<li><p><code>cases</code>, <code>deaths</code>, <code>dalys</code> -
-point estimates (annual totals)</p></li>
-<li><p><code>_low</code>, <code>_high</code> - lower/upper 95%
-UI</p></li>
-<li><p>in <code>bhai_rates</code>: metric ∈ {<code>HAIs</code>,
-<code>Deaths</code>, <code>DALYs</code>}, <code>per100k</code>,
-<code>per100k_low</code>, <code>per100k_high</code></p></li>
-</ul>
-</div>
+<p>See the full schema in the <a href="data-dictionary.html"><strong>Data dictionary</strong></a> and see
+worked examples of <code>implied_pop_de()</code>,
+<code>totals_for_sample()</code>, and <code>pyramid_df()</code> in the
+<a href="bhaibye_functions.html"><strong>Functions in
+BHAIBYE</strong></a></p>
 </div>
 <div class="section level2">
 <h2 id="launch-the-shiny-app">Launch the Shiny app<a class="anchor" aria-label="anchor" href="#launch-the-shiny-app"></a>
@@ -130,135 +140,102 @@ UI</p></li>
 </h2>
 <ul>
 <li>
-<p>Bubble (per HAI)</p>
+<p><strong>Bubble (per HAI)</strong></p>
 <ul>
+<li>
+<p>Choose <strong>Sample</strong> <em>(German PPS or ECDC PPS
+(EU/EEA))</em>.</p>
+<ul>
+<li><p>German PPS uses published Germany totals.</p></li>
+<li><p>ECDC PPS converts per-100k rates to approximate totals using an
+<em>implied Germany-scale population</em> (see
+<code>implied_pop_de()</code>).</p></li>
+</ul>
+</li>
 <li><p>X = annual HAIs (cases), Y = attributable deaths; bubble size =
 DALYs.</p></li>
 <li><p>Hover tooltips show 95% UI for cases / deaths / DALYs.</p></li>
 </ul>
 </li>
-<li>
-<p>Bar (per HAI)</p>
+</ul>
+<div class="figure" style="text-align: center">
+<img src="figures/bubble.png" alt="Bubble chart: HAIs on x-axis, deaths on y-axis, bubble size for DALYs; hover shows 95% UI." width="80%" class="img-frame"><p class="caption">
+Example - Bubble (per HAI): x = HAIs, y = deaths, size = DALYs (95% UI
+on hover).
+</p>
+</div>
 <ul>
+<li>
+<p><strong>Bar (per HAI)</strong></p>
+<ul>
+<li>
+<p>Choose <strong>Sample</strong> <em>(German PPS or ECDC PPS
+(EU/EEA))</em>.</p>
+<ul>
+<li><p>German PPS uses published Germany totals.</p></li>
+<li><p>ECDC PPS converts per-100k rates to approximate totals using an
+<em>implied Germany-scale population</em> (see
+<code>implied_pop_de()</code>).</p></li>
+</ul>
+</li>
 <li><p>Choose metric (HAIs / Deaths / DALYs). Bars are colour-coded by
 HAI type.</p></li>
 <li><p>Vertical error bars = 95% UI.</p></li>
 </ul>
 </li>
-<li>
-<p>Geo comparison (per N)</p>
-<ul>
-<li><p>Compare German PPS vs ECDC PPS (EU/EEA) for the chosen metric, as
-rates per N people. Use the slider to change N (e.g. 1,000 …
-100,000).</p></li>
-<li><p>Error bars show 95% UI. Overlapping intervals suggest limited
-separation.</p></li>
-<li>
-<p>Read the <strong>summary text under the plot</strong>: for each
-HAI it prints</p>
-<ul>
-<li><p><strong>Type</strong> - <strong>German PPS</strong> shows
-<strong>X</strong> per <strong>N</strong> and <strong>ECDC PPS</strong>
-shows <strong>Y</strong> per <strong>N</strong> (<strong>[Who’s higher]
-by Δ</strong>).</p></li>
-<li><p>This updates live when you move the slider or switch metric (it
-will also say <strong>Tie</strong> when values are equal).</p></li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="example-exploring-the-burden-of-hais-interactively">Example: Exploring the burden of HAIs interactively<a class="anchor" aria-label="anchor" href="#example-exploring-the-burden-of-hais-interactively"></a>
-</h2>
-<p>The <strong>BHAIBYE</strong> app helps answer common questions about
-healthcare-associated infections (HAIs) in Germany and the EU/EEA.<br>
-Below are example questions and how you can explore them using the
-app.</p>
-<div class="section level3">
-<h3 id="question-1-how-do-total-hais-attributable-deaths-and-dalys-compare-across-infection-types">💡 Question 1: How do total HAIs, attributable deaths, and DALYs
-compare across infection types?<a class="anchor" aria-label="anchor" href="#question-1-how-do-total-hais-attributable-deaths-and-dalys-compare-across-infection-types"></a>
-</h3>
-<ol style="list-style-type: decimal">
-<li><p>In the sidebar, under <strong>View</strong>, select
-<strong>Bubble (per HAI)</strong>.</p></li>
-<li>
-<p>Each bubble represents one infection type (HAP, UTI, BSI, SSI,
-CDI).</p>
-<ol style="list-style-type: lower-alpha">
-<li><p>The x-axis shows total annual HAIs.</p></li>
-<li><p>The y-axis shows attributable deaths.</p></li>
-<li><p>The bubble size shows DALYs (combined YLL + YLD).</p></li>
-</ol>
-</li>
-<li><p>Hover your mouse over any bubble to see the exact numbers,
-including 95% uncertainty intervals.</p></li>
-<li><p>Use the <strong>HAI types</strong> checkboxes to filter and
-compare only selected infections.</p></li>
-</ol>
-<p><strong>Illustrative Figure</strong>:</p>
 <div class="figure" style="text-align: center">
-<img src="figures/example_bubble.png" alt="Bubble chart showing HAIs on x-axis, deaths on y-axis, bubble size for DALYs; hover shows 95% UI." width="80%" class="img-frame"><p class="caption">
-Example - Bubble (per HAI): x = HAIs, y = deaths, size = DALYs (95% UI
-on hover).
+<img src="figures/bar.png" alt="Bar chart of HAI types with 95% UI error bars." width="80%" class="img-frame"><p class="caption">
+Example - Bar (per HAI type): totals by infection type with 95% UI.
 </p>
 </div>
-</div>
-<div class="section level3">
-<h3 id="question-2-how-do-infection-types-contribute-to-dalys-deaths-and-hais-in-germany">💡 Question 2: How do infection types contribute to DALYs, Deaths,
-and HAIs in Germany?<a class="anchor" aria-label="anchor" href="#question-2-how-do-infection-types-contribute-to-dalys-deaths-and-hais-in-germany"></a>
-</h3>
-<ol style="list-style-type: decimal">
-<li><p>In the sidebar, set <strong>View</strong> to <strong>Bar (per HAI
-type)</strong>.</p></li>
-<li><p>Under <strong>Metric</strong>, choose the measure you want to
-explore (<strong>DALYs, Deaths, or HAIs</strong>).</p></li>
-<li><p>The chart displays total annual values by HAI type, with error
-bars indicating 95% uncertainty intervals.</p></li>
-<li><p><strong>Hover</strong> over any bar to see exact numbers,
-including the 95% uncertainty interval.</p></li>
-<li><p>Use the <strong>HAI types</strong> checkboxes to filter and
-compare selected infections.</p></li>
-</ol>
-<p><strong>Illustrative Figure</strong>:</p>
+<ul>
+<li>
+<p><strong>Geo comparison (per N)</strong></p>
+<ul>
+<li><p>Compare Germany vs EU/EEA for the chosen metric at rates per N
+people.</p></li>
+<li><p>Use the slider to adjust N (e.g., 1,000 … 100,000).</p></li>
+<li><p>The app also prints a text summary clarifying which region is
+higher and by how much (or Tie).</p></li>
+</ul>
+</li>
+</ul>
 <div class="figure" style="text-align: center">
-<img src="figures/example_bar.png" alt="Bar chart of HAI types with error bars indicating 95 percent uncertainty intervals." width="80%" class="img-frame"><p class="caption">
-Example - Bar (per HAI type): totals by infection type with 95%
-uncertainty intervals.
-</p>
-</div>
-</div>
-<div class="section level3">
-<h3 id="question-3-how-does-germany-compare-with-the-eueea-overall">💡 Question 3: How does Germany compare with the EU/EEA
-overall?<a class="anchor" aria-label="anchor" href="#question-3-how-does-germany-compare-with-the-eueea-overall"></a>
-</h3>
-<ol style="list-style-type: decimal">
-<li><p>In the sidebar, set <strong>View</strong> to <strong>Geo
-comparison (per N)</strong>.</p></li>
-<li><p>Under <strong>Metric</strong>, choose the measure you want to
-explore (<strong>HAIs, Deaths or DALYs</strong>).</p></li>
-<li><p>Adjust the <strong>Scale (per N population)</strong> slider to
-rescale the rates (e.g., per 100,000).</p></li>
-<li><p>The bar chart shows Germany vs. EU/EEA for each HAI
-type.</p></li>
-<li><p>Read the text summary below the chart, which automatically
-highlights which region has higher rates and by how much.</p></li>
-</ol>
-<p><strong>Illustrative Figure (Bar)</strong>:</p>
-<div class="figure" style="text-align: center">
-<img src="figures/example_compare_bar.png" alt="Bar comparison of Germany and EU/EEA across infection types with per-capita scaling." width="80%" class="img-frame"><p class="caption">
+<img src="figures/geo_com.png" alt="Bar comparison of Germany and EU/EEA across infection types with per-capita scaling." width="80%" class="img-frame"><p class="caption">
 Example - Germany vs EU/EEA: bar comparison by HAI type, scaled per N
 population.
 </p>
 </div>
-<p><strong>Illustrative Figure (Summary)</strong>:</p>
 <div class="figure" style="text-align: center">
-<img src="figures/example_compare_summary.png" alt="Autogenerated textual summary indicating which region has higher values and the magnitude." width="80%" class="img-frame"><p class="caption">
-Example - Auto-generated summary highlighting which region is higher and
-by how much.
+<img src="figures/summary.png" alt="Text summary indicating which region has higher values and the magnitude." width="80%" class="img-frame"><p class="caption">
+Example - Auto-generated summary showing who is higher and the
+difference.
 </p>
 </div>
+<ul>
+<li>
+<p><strong>Age pyramid</strong></p>
+<ul>
+<li><p>Choose <strong>Sample</strong> <em>(German PPS or ECDC PPS
+(EU/EEA))</em>.</p></li>
+<li><p>Optionally filter <strong>HAI types</strong>; the pyramid
+aggregates <strong>weighted DALYs</strong> across the selected
+infections.</p></li>
+<li><p>Bars show <strong>DALYs by age group and sex</strong>, computed
+from the simulated microdata (<code>bhai_cases_de</code> /
+<code>bhai_cases_eu</code>) using population weights (via
+<code>pyramid_df()</code>).</p></li>
+<li><p>Hover tooltips report DALYs for each age–sex bin. Small
+Monte-Carlo differences vs totals are expected.</p></li>
+</ul>
+</li>
+</ul>
+<div class="figure" style="text-align: center">
+<img src="figures/age.png" alt="Two-sided age pyramid showing weighted DALYs by age group for females and males." width="80%" class="img-frame"><p class="caption">
+Example - Age pyramid: weighted DALYs by age group and sex (simulated
+microdata).
+</p>
 </div>
 </div>
 <div class="section level2">
@@ -270,45 +247,66 @@ by how much.
 <h2 id="package-structure">Package Structure<a class="anchor" aria-label="anchor" href="#package-structure"></a>
 </h2>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>assignment<span class="dv">-4</span><span class="sc">-</span>packages<span class="sc">-</span>and<span class="sc">-</span>shiny<span class="sc">-</span>apps<span class="sc">-</span>ruby910113<span class="sc">/</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>├─ ETC5523_assignment4.Rproj               </span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>├─ ETC5523_assignment4.Rproj               <span class="co"># RStudio project file</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>├─ R<span class="sc">/</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>│  ├─ launch_app.R          <span class="co"># exported launcher</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>│  └─ BHAIBYE.R             <span class="co"># package-level docs</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>├─ inst<span class="sc">/</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>│  └─ shiny<span class="sc">/</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>│     ├─ app.R              <span class="co"># main app</span></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>│     └─ www<span class="sc">/</span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>│        └─ app.css         <span class="co"># custom styles</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>├─ data<span class="sc">/</span> </span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>│  ├─ bhai_summary.rda      <span class="co"># HAI totals</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>│  └─ bhai_rates.rda        <span class="co"># Rates per 100,000 </span></span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>├─ data<span class="sc">-</span>raw<span class="sc">/</span> </span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>│  └─ bhai_dataset.R        <span class="co"># reads/cleans sources → saves .rda</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>├─ vignettes<span class="sc">/</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>│  └─ BHAIBYE.Rmd           <span class="co"># “Getting started / app tour” vignette</span></span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>├─ man<span class="sc">/</span>                     <span class="co"># Rd documentation generated by roxygen2</span></span>
-<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="er">|</span>  ├─ bhai_summary.Rd</span>
-<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="sc">|</span>  ├─ bhai_rates.Rd</span>
-<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>│  └─ launch_app.Rd</span>
-<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>├─ pkgdown<span class="sc">/</span>                 <span class="co"># site configuration </span></span>
-<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>│  ├─ _pkgdown.yml</span>
-<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>│  └─ index.md              <span class="co"># Project homepage</span></span>
-<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>├─ docs<span class="sc">/</span>                    <span class="co"># pkgdown site output</span></span>
-<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>├─ README.Rmd               <span class="co"># README file for github</span></span>
-<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>├─ README.md                <span class="co"># rendered by README.Rmd</span></span>
-<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>├─ DESCRIPTION              <span class="co"># package metadata (title, version, authors)</span></span>
-<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>├─ NAMESPACE                <span class="co"># exports/imports (auto-generated by roxygen2)</span></span>
-<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>├─ LICENSE                  <span class="co"># SPDX short license file</span></span>
-<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>├─ LICENSE.md               <span class="co"># full license text </span></span>
-<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>├─ .github</span>
-<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>├─ .Rbuildignore            <span class="co"># files to ignore during build</span></span>
-<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a>└─ .gitignore               <span class="co"># files to ignore in Git</span></span></code></pre></div>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>│  ├─ launch_app.R          <span class="co"># Exported launcher that opens the Shiny app in inst/shiny</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>│  ├─ bhai_cases_de.R       <span class="co"># Roxygen docs for dataset: simulated DE microdata (age/sex, weights)</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>│  ├─ bhai_cases_eu.R       <span class="co"># Roxygen docs for dataset: simulated EU/EEA microdata (same schema as DE)</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>│  ├─ bhai_rates.R          <span class="co"># Roxygen docs for dataset: per-100k rates (long format; DE &amp; EU/EEA)</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>│  ├─ bhai_summary.R        <span class="co"># Roxygen docs for dataset: DE totals + 95% UI + YLL/YLD components</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>│  ├─ implied_pop_de.R      <span class="co"># Internal helper: back-calc implied DE population from totals &amp; “All” rate</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>│  ├─ pyramid_df.R          <span class="co"># Internal helper: aggregate weighted DALYs by age × sex for pyramids</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>│  ├─ totals_for_sample.R   <span class="co"># Internal helper: build totals/UI for chosen sample (DE or EU/EEA)</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>│  ├─ globals.R             <span class="co"># Global vars/constants; utils::globalVariables() to silence NSE notes</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>│  └─ BHAIBYE.R             <span class="co"># Package-level docs and vignette pointers (not exported)</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>├─ inst<span class="sc">/</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>│  └─ shiny<span class="sc">/</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>│     ├─ app.R              <span class="co"># Main Shiny app (UI/server), reads package data &amp; helpers</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>│     └─ www<span class="sc">/</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>│        └─ app.css         <span class="co"># Custom CSS styles for the app (Bootstrap/BSlib friendly)</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>├─ data<span class="sc">/</span> </span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>│  ├─ bhai_summary.rda      <span class="co"># Serialized DE totals dataset (for ?bhai_summary)</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>│  ├─ bhai_rates.rda        <span class="co"># Serialized rates dataset (for ?bhai_rates)</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>│  ├─ bhai_cases_de.rda     <span class="co"># Serialized simulated DE microdata (for ?bhai_cases_de)</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>│  └─ bhai_cases_eu.rda     <span class="co"># Serialized simulated EU/EEA microdata (for ?bhai_cases_eu)</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>├─ data<span class="sc">-</span>raw<span class="sc">/</span> </span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>│  └─ bhai_dataset.R        <span class="co"># Repro script to build/clean data → saves .rda (not run on install)</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>├─ vignettes<span class="sc">/</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>│  ├─ BHAIBYE.Rmd           <span class="co"># “Getting started / app tour” vignette</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>│  ├─ bhaibye_function.Rmd  <span class="co"># Functions vignette (internal helpers usage &amp; examples)</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>│  └─ data<span class="sc">-</span>dictionary.Rmd   <span class="co"># Data dictionary vignette (schema + quick peeks)</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>├─ man<span class="sc">/</span>                     <span class="co"># Rd reference generated by roxygen2</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>│  ├─ bhai_summary.Rd       <span class="co"># Help page for DE totals dataset</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>│  ├─ bhai_rates.Rd         <span class="co"># Help page for rates dataset</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>│  ├─ bhai_cases_de.Rd      <span class="co"># Help page for DE microdata</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a>│  ├─ bhai_cases_eu.Rd      <span class="co"># Help page for EU/EEA microdata</span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a>│  └─ launch_app.Rd         <span class="co"># Help page for launch_app()</span></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a>├─ pkgdown<span class="sc">/</span>                 </span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a>│  ├─ _pkgdown.yml          <span class="co"># Site configuration (navbar, reference, articles, theme)</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a>│  └─ index.md              <span class="co"># Home page content for the pkgdown site</span></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a>├─ docs<span class="sc">/</span>                    <span class="co"># Built pkgdown site output (served by GitHub Pages)</span></span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a>├─ README.Rmd               <span class="co"># Source README for GitHub (knit to README.md)</span></span>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a>├─ README.md                <span class="co"># Rendered README (badges, install, examples)</span></span>
+<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a>├─ DESCRIPTION              <span class="co"># Package metadata (title, version, authors, imports, etc.)</span></span>
+<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a>├─ NAMESPACE                <span class="co"># Auto-generated exports/imports (do not edit by hand)</span></span>
+<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a>├─ LICENSE                  <span class="co"># SPDX short license identifier (MIT + file LICENSE)</span></span>
+<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a>├─ LICENSE.md               <span class="co"># Full MIT license text</span></span>
+<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a>├─ .github                  <span class="co"># CI/workflows (e.g., pkgdown GH Actions) if configured</span></span>
+<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a>├─ .Rbuildignore            <span class="co"># Files/dirs excluded from R CMD build</span></span>
+<span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a>└─ .gitignore               <span class="co"># Git ignores (e.g., docs/, .Rproj.user/, .DS_Store)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
 </h2>
 <p>This package was produced in the context of an academic
 assignment.</p>
+<p>All datasets in this package are simulated by me for teaching and
+demonstration purposes. The person-level microdata (bhai_cases_de,
+bhai_cases_eu) are synthetic draws calibrated to approximate published
+aggregates; the totals and rates (bhai_summary, bhai_rates) are compact
+representations derived for this package. <strong>They are not official
+statistics, may differ from the source study, and should not be used for
+clinical or policy decisions</strong>.</p>
 <p>Package scaffolding and documentation were made much easier thanks to
 the R packaging ecosystem - particularly <strong>usethis</strong>,
 <strong>devtools</strong>, and <strong>roxygen2</strong>.<br>
