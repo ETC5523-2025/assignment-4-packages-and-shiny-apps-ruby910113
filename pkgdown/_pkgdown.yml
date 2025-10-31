@@ -9,8 +9,9 @@ template:
     primary: "#283618"
     bg: "#fafaf7"
     fg: "#283618"
-    headings-color: "#283618"
-    navbar-dark-bg: "#283618"
+  assets:
+    css:
+      - extra.css
 
 home:
   title: "BHAIBYE: HAI Burden Explorer"
