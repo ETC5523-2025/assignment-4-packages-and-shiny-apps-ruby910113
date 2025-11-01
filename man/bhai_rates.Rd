@@ -37,8 +37,7 @@ by multiplying rates with an implied population size; this dataset itself
 only stores rates.
 }
 \examples{
-data("bhai_rates", package = "BHAIBYE")
-subset(bhai_rates, geo == "Germany" & metric == "DALYs")
+head(bhai_rates)
 }
 \references{
 Zacher B., et al. (2019). \emph{Burden of healthcare-associated infections

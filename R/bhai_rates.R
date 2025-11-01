@@ -5,6 +5,8 @@
 #' EU/EEA (ECDC PPS). Includes a row with \code{hai == "All"} that aggregates
 #' across HAI types for each metric.
 #'
+#' @docType data
+#' @keywords datasets
 #' @format A data frame with columns:
 #' \describe{
 #'   \item{geo}{character. \code{"Germany"} or \code{"EU/EEA"}.}
@@ -31,6 +33,5 @@
 #' in Germany and the EU/EEA}. Eurosurveillance, 24(46).
 #'
 #' @examples
-#' data("bhai_rates", package = "BHAIBYE")
-#' subset(bhai_rates, geo == "Germany" & metric == "DALYs")
+#' head(bhai_rates)
 "bhai_rates"

@@ -22,21 +22,25 @@ home:
 
 navbar:
   structure:
-    left:  [reference, examples]
-    right: [github, search]
+    left:  [reference, getting-started, functions, data-dictionary]
+    right: [search, github]
   components:
     reference:
       text: "Reference"
       href: reference/index.html
-    examples:
-      text: "Examples"
-      menu:
-        - text: "Getting started with BHAIBYE"
-          href: articles/BHAIBYE.html
-        - text: "Functions in BHAIBYE"
-          href: articles/bhaibye_functions.html
-        - text: "Data dictionary"
-          href: articles/data-dictionary.html
+
+    getting-started:
+      text: "Getting started"
+      href: articles/BHAIBYE.html
+
+    functions:
+      text: "Functions"
+      href: articles/bhaibye_functions.html
+
+    data-dictionary:
+      text: "Data dictionary"
+      href: articles/data-dictionary.html
+
     github:
       icon: fab fa-github
       href: https://github.com/ruby910113
@@ -59,3 +63,4 @@ articles:
       - BHAIBYE        
       - bhaibye_functions  
       - data-dictionary 
+      

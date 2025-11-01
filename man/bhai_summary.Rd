@@ -36,7 +36,7 @@ bhai_summary
 }
 \description{
 Annual totals for Germany (German PPS) by HAI type:
-HAP, UTI, BSI, SSI, CDI. Includes point estimates and 95\% uncertainty
+HAP, UTI, BSI, SSI, CDI. Includes point estimates and 95\\% uncertainty
 intervals (UI) for cases, deaths, DALYs, and the DALY components
 (YLL, YLD).
 }
@@ -45,7 +45,6 @@ Values mirror the patterns reported in Zacher et al. (2019) and are
 intended for teaching/demo. See references below for the original study.
 }
 \examples{
-data("bhai_summary", package = "BHAIBYE")
 head(bhai_summary)
 }
 \references{

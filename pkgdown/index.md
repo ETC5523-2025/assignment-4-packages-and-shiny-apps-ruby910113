@@ -19,8 +19,10 @@ The package is intentionally lightweight: it’s meant for coursework, demos, an
 You can install the development version of BHAIBYE from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("pak")
-pak::pak("ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113")
+# Install from GitHub
+install.packages("remotes") # Install remotes if needed
+
+remotes::install_github("ETC5523-2025/assignment-4-packages-and-shiny-apps-ruby910113")
 ```
 
 ## Dataset Description and Shiny app

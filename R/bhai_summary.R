@@ -1,10 +1,12 @@
 #' Germany HAI burden totals (with 95% uncertainty)
 #'
 #' Annual totals for Germany (German PPS) by HAI type:
-#' HAP, UTI, BSI, SSI, CDI. Includes point estimates and 95% uncertainty
+#' HAP, UTI, BSI, SSI, CDI. Includes point estimates and 95\% uncertainty
 #' intervals (UI) for cases, deaths, DALYs, and the DALY components
 #' (YLL, YLD).
 #'
+#' @docType data
+#' @keywords datasets
 #' @format A data frame with 5 rows (one per HAI type) and 18 columns:
 #' \describe{
 #'   \item{geo}{character. Geography label (always \code{"Germany"}).}
@@ -39,6 +41,5 @@
 #' in Germany and the EU/EEA}. Eurosurveillance, 24(46).
 #'
 #' @examples
-#' data("bhai_summary", package = "BHAIBYE")
 #' head(bhai_summary)
 "bhai_summary"
